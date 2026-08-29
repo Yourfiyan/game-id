@@ -31,3 +31,7 @@ coverage/
 # Local project tooling
 .claude/
 
+# Local project data
+data/*
+!data/.gitkeep
+workspace_test.txt
