@@ -1,0 +1,397 @@
+/* ==========================================================================
+   Library Page Styles
+   ========================================================================== */
+
+.library-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+/* ---- header -------------------------------------------------------------- */
+.library-header {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+
+.search-box {
+  flex: 1;
+  max-width: 500px;
+}
+
+.search-box input {
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-base);
+  color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-md);
+  transition: all var(--t-base) var(--ease);
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(124, 92, 255, 0.15);
+}
+
+.view-switcher {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.view-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-lg);
+  color: var(--text-muted);
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all var(--t-base) var(--ease);
+}
+
+.view-btn:hover {
+  color: var(--text-secondary);
+  border-color: var(--glass-border-hover);
+}
+
+.view-btn.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(124, 92, 255, 0.12);
+}
+
+.filter-toggle-btn {
+  padding: var(--sp-3) var(--sp-4);
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all var(--t-base) var(--ease);
+}
+
+.filter-toggle-btn:hover {
+  border-color: var(--glass-border-hover);
+}
+
+/* ---- body ---------------------------------------------------------------- */
+.library-body {
+  display: flex;
+  gap: var(--sp-6);
+  flex: 1;
+  overflow: hidden;
+}
+
+/* ---- filters ------------------------------------------------------------- */
+.filters {
+  width: 280px;
+  height: fit-content;
+  max-height: calc(100vh - 200px);
+  overflow-y: auto;
+  flex-shrink: 0;
+  transition: all var(--t-base) var(--ease);
+}
+
+.filters.collapsed {
+  display: none;
+}
+
+.filters h3 {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-5);
+}
+
+.filter-group {
+  margin-bottom: var(--sp-5);
+  padding-bottom: var(--sp-5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.filter-group:last-of-type {
+  border-bottom: none;
+}
+
+.filter-group label {
+  display: block;
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-3);
+}
+
+.filter-group select,
+.filter-group input[type="number"] {
+  width: 100%;
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-sm);
+  color: var(--text-primary);
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-sm);
+  transition: all var(--t-base) var(--ease);
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.checkbox-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.checkbox-list label {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-sm);
+  font-weight: 400;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: var(--sp-2);
+  border-radius: var(--r-sm);
+  transition: all var(--t-base) var(--ease);
+}
+
+.checkbox-list label:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.checkbox-list input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.range-inputs {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.range-inputs input {
+  flex: 1;
+}
+
+.range-inputs span {
+  color: var(--text-muted);
+}
+
+.btn-secondary {
+  width: 100%;
+  padding: var(--sp-3);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all var(--t-base) var(--ease);
+}
+
+.btn-secondary:hover {
+  color: var(--text-primary);
+  border-color: var(--glass-border-hover);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+/* ---- library grid -------------------------------------------------------- */
+.library-grid {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: var(--sp-2);
+}
+
+.library-grid.view-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--sp-5);
+  align-content: start;
+}
+
+.library-grid.view-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.library-grid.view-compact {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: var(--sp-12);
+  color: var(--text-muted);
+  font-size: var(--fs-lg);
+}
+
+/* ---- game cards ---------------------------------------------------------- */
+.game-card {
+  cursor: pointer;
+  transition: all var(--t-base) var(--ease);
+  overflow: hidden;
+}
+
+.game-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+  border-color: var(--glass-border-hover);
+}
+
+.view-grid .game-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.view-list .game-card,
+.view-compact .game-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-4);
+}
+
+.game-cover {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--bg-overlay);
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+
+.view-grid .game-cover {
+  margin-bottom: var(--sp-3);
+}
+
+.view-list .game-cover,
+.view-compact .game-cover {
+  width: 120px;
+  height: 160px;
+  flex-shrink: 0;
+}
+
+.view-compact .game-cover {
+  width: 80px;
+  height: 106px;
+}
+
+.rating-badge {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  padding: var(--sp-1) var(--sp-2);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
+  border-radius: var(--r-sm);
+}
+
+.game-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.game-title {
+  font-size: var(--fs-base);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.view-compact .game-title {
+  font-size: var(--fs-sm);
+  -webkit-line-clamp: 1;
+}
+
+.game-meta {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.view-compact .game-meta {
+  display: none;
+}
+
+.game-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: auto;
+}
+
+.game-platform {
+  font-size: var(--fs-xs);
+  color: var(--text-secondary);
+}
+
+.price {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* ---- responsive ---------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .library-grid.view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .filters {
+    position: fixed;
+    top: var(--topbar-h);
+    left: var(--sidebar-w);
+    right: 0;
+    bottom: 0;
+    z-index: 100;
+    max-height: none;
+    background: var(--bg-base);
+  }
+
+  .filters.collapsed {
+    display: none;
+  }
+
+  .library-grid.view-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+}

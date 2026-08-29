@@ -1,0 +1,286 @@
+/* ==========================================================================
+   Home Page Styles
+   ========================================================================== */
+
+.home-page {
+  max-width: 1600px;
+  margin: 0 auto;
+}
+
+/* ---- hero cards ---------------------------------------------------------- */
+.hero-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-8);
+}
+
+.hero-card {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-6);
+  transition: all var(--t-base) var(--ease);
+}
+
+.hero-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.hero-icon {
+  font-size: 3rem;
+  flex-shrink: 0;
+}
+
+.hero-content {
+  flex: 1;
+}
+
+.hero-title {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.hero-value {
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.card-primary { border-color: rgba(124, 92, 255, 0.30); }
+.card-accent  { border-color: rgba(61, 218, 215, 0.30); }
+.card-info    { border-color: rgba(74, 163, 255, 0.30); }
+.card-ok      { border-color: rgba(62, 207, 142, 0.30); }
+
+/* ---- widgets ------------------------------------------------------------- */
+.widgets {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: var(--sp-5);
+}
+
+.widget h3 {
+  font-size: var(--fs-lg);
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: var(--sp-5);
+}
+
+/* ---- data list ----------------------------------------------------------- */
+.data-list {
+  list-style: none;
+}
+
+.data-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.data-list li:last-child {
+  border-bottom: none;
+}
+
+.text-secondary {
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+/* ---- bar chart ----------------------------------------------------------- */
+.bar-chart {
+  list-style: none;
+}
+
+.bar-item {
+  margin-bottom: var(--sp-4);
+}
+
+.bar-item:last-child {
+  margin-bottom: 0;
+}
+
+.bar-label {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-secondary);
+  margin-bottom: var(--sp-2);
+}
+
+.bar-track {
+  position: relative;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: var(--r-full);
+  overflow: hidden;
+  margin-bottom: var(--sp-2);
+}
+
+.bar-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  background: var(--accent-gradient);
+  border-radius: var(--r-full);
+  transition: width var(--t-base) var(--ease);
+}
+
+.bar-value {
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ---- health score -------------------------------------------------------- */
+.health-score {
+  text-align: center;
+  margin-bottom: var(--sp-6);
+}
+
+.score-circle {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto var(--sp-3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  border: 3px solid rgba(124, 92, 255, 0.3);
+  border-radius: var(--r-full);
+}
+
+.health-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+  margin-top: var(--sp-5);
+}
+
+.stat {
+  text-align: center;
+  padding: var(--sp-4);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--r-md);
+}
+
+.stat-label {
+  display: block;
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  margin-bottom: var(--sp-2);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.stat-value {
+  display: block;
+  font-size: var(--fs-xl);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.text-warn {
+  color: var(--warn);
+}
+
+.text-ok {
+  color: var(--ok);
+}
+
+/* ---- value stats --------------------------------------------------------- */
+.value-stats,
+.playtime-stats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--sp-3) 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.stat-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.stat-row span:first-child {
+  color: var(--text-secondary);
+}
+
+.stat-row span:last-child {
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Ownership metadata (amount paid) must stay low-prominence. Without this the
+   two rules above win on specificity and repaint it as a primary figure. */
+.stat-row.text-faint span,
+.stat-row.text-faint span:first-child,
+.stat-row.text-faint span:last-child {
+  color: var(--text-faint);
+  font-size: var(--fs-micro);
+  font-weight: 400;
+}
+
+.stat-big {
+  text-align: center;
+  padding: var(--sp-6);
+  background: rgba(255, 255, 255, 0.03);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-4);
+}
+
+.stat-big .value {
+  display: block;
+  font-size: var(--fs-3xl);
+  font-weight: 700;
+  background: var(--accent-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: var(--sp-2);
+}
+
+.stat-big .label {
+  display: block;
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* ---- responsive ---------------------------------------------------------- */
+@media (max-width: 1200px) {
+  .widgets {
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .widgets {
+    grid-template-columns: 1fr;
+  }
+}

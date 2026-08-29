@@ -1,0 +1,33 @@
+# Generated / local workspace files
+.cache/
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.env
+.env.*
+
+# Editor / tool metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build / output folders
+node_modules/
+dist/
+build/
+coverage/
+*.log
+
+# Local project tooling
+.claude/
+

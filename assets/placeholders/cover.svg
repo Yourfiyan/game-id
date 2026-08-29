@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Cover placeholder. Used when no verified artwork exists for a title.
+     Deliberately obvious: a missing cover should read as "not found",
+     not as a real cover. 3:4 to match .game-cover's aspect-ratio. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 400" width="300" height="400"
+     role="img" aria-label="No cover artwork available">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#161a24"/>
+      <stop offset="100%" stop-color="#0b0d13"/>
+    </linearGradient>
+    <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+      <path d="M20 0H0v20" fill="none" stroke="#ffffff" stroke-opacity="0.03" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="300" height="400" fill="url(#bg)"/>
+  <rect width="300" height="400" fill="url(#grid)"/>
+  <rect x="0.5" y="0.5" width="299" height="399" fill="none"
+        stroke="#ffffff" stroke-opacity="0.07"/>
+
+  <g transform="translate(150 176)" fill="none" stroke="#565e73" stroke-width="2.5"
+     stroke-linecap="round" stroke-linejoin="round">
+    <rect x="-30" y="-24" width="60" height="48" rx="4"/>
+    <circle cx="-11" cy="-6" r="5"/>
+    <path d="M-30 14l19-16 13 11 10-8 18 15v8a4 4 0 0 1-4 4h-52a4 4 0 0 1-4-4z"
+          fill="#565e73" stroke="none" fill-opacity="0.55"/>
+  </g>
+
+  <text x="150" y="244" text-anchor="middle" fill="#565e73"
+        font-family="Segoe UI, system-ui, sans-serif" font-size="13" font-weight="600"
+        letter-spacing="0.08em">NO ARTWORK</text>
+  <text x="150" y="264" text-anchor="middle" fill="#3f465a"
+        font-family="Segoe UI, system-ui, sans-serif" font-size="11">
+    Needs Manual Verification
+  </text>
+</svg>

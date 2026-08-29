@@ -1,0 +1,101 @@
+{
+  "source": "Steam store genres (IGDB taxonomy unavailable - no credentials this run)",
+  "generatedAt": "2026-07-31T14:00:27+00:00",
+  "genres": [
+    {
+      "name": "Action",
+      "slug": "action",
+      "counts": {
+        "A": 23,
+        "B": 56
+      }
+    },
+    {
+      "name": "Indie",
+      "slug": "indie",
+      "counts": {
+        "A": 19,
+        "B": 48
+      }
+    },
+    {
+      "name": "Adventure",
+      "slug": "adventure",
+      "counts": {
+        "A": 20,
+        "B": 39
+      }
+    },
+    {
+      "name": "Free To Play",
+      "slug": "free_to_play",
+      "counts": {
+        "A": 4,
+        "B": 45
+      }
+    },
+    {
+      "name": "RPG",
+      "slug": "rpg",
+      "counts": {
+        "A": 10,
+        "B": 28
+      }
+    },
+    {
+      "name": "Strategy",
+      "slug": "strategy",
+      "counts": {
+        "A": 6,
+        "B": 29
+      }
+    },
+    {
+      "name": "Casual",
+      "slug": "casual",
+      "counts": {
+        "A": 3,
+        "B": 31
+      }
+    },
+    {
+      "name": "Simulation",
+      "slug": "simulation",
+      "counts": {
+        "A": 7,
+        "B": 22
+      }
+    },
+    {
+      "name": "Massively Multiplayer",
+      "slug": "massively_multiplayer",
+      "counts": {
+        "A": 3,
+        "B": 18
+      }
+    },
+    {
+      "name": "Early Access",
+      "slug": "early_access",
+      "counts": {
+        "B": 12
+      }
+    },
+    {
+      "name": "Sports",
+      "slug": "sports",
+      "counts": {
+        "A": 1,
+        "B": 9
+      }
+    },
+    {
+      "name": "Racing",
+      "slug": "racing",
+      "counts": {
+        "A": 2,
+        "B": 4
+      }
+    }
+  ]
+}

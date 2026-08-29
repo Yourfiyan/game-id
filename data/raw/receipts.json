@@ -1,0 +1,320 @@
+[
+  {
+    "source": "Your Epic Games Receipt F2009211657376748.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Mon, 21 Sep 2020 17:02:40 +0000",
+    "orderId": "F2009211657376748",
+    "orderDate": "September 21, 2020",
+    "items": [
+      {
+        "title": "Watch Dogs 2",
+        "publisher": "Ubisoft Entertainment",
+        "price": 0.0,
+        "currency": "USD"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt F2012171750490744.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Sun, 20 Dec 2020 03:05:29 +0000",
+    "orderId": "F2012171750490744",
+    "orderDate": "December 17, 2020",
+    "items": [
+      {
+        "title": "Cities: Skylines",
+        "publisher": "Paradox Interactive",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt F2111080537065416.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Mon, 08 Nov 2021 05:42:12 +0000",
+    "orderId": "F2111080537065416",
+    "orderDate": "November 8, 2021",
+    "items": [
+      {
+        "title": "Aven Colony",
+        "publisher": "Team17 Digital Ltd",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt F2201060710588262.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Thu, 06 Jan 2022 07:16:01 +0000",
+    "orderId": "F2201060710588262",
+    "orderDate": "January 6, 2022",
+    "items": [
+      {
+        "title": "Rise of the Tomb Raider: 20 Year Celebration",
+        "publisher": "Square Enix",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt F2201060717384786.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Thu, 06 Jan 2022 07:22:42 +0000",
+    "orderId": "F2201060717384786",
+    "orderDate": "January 6, 2022",
+    "items": [
+      {
+        "title": "Shadow of the Tomb Raider: Definitive Edition",
+        "publisher": "Square Enix",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt F2204281602094327.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Thu, 28 Apr 2022 16:07:14 +0000",
+    "orderId": "F2204281602094327",
+    "orderDate": "April 28, 2022",
+    "items": [
+      {
+        "title": "Just Die Already",
+        "publisher": "Curve Digital",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Paradigm",
+        "publisher": "Janerka Productions",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt F2206091613224327.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Thu, 09 Jun 2022 16:18:24 +0000",
+    "orderId": "F2206091613224327",
+    "orderDate": "June 9, 2022",
+    "items": [
+      {
+        "title": "Maneater",
+        "publisher": "Tripwire Interactive",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt F2303250801030768.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Sat, 25 Mar 2023 08:06:07 +0000",
+    "orderId": "F2303250801030768",
+    "orderDate": "March 25, 2023",
+    "items": [
+      {
+        "title": "Star Trek Online",
+        "publisher": "Gearbox Publishing San Francisco",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Warframe",
+        "publisher": "Digital Extremes",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "3 out of 10, EP 1: Welcome To Shovelworks",
+        "publisher": "Terrible Posture Games, Inc.",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Rogue Company",
+        "publisher": "Hi-Rez Studios",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Chess Ultra",
+        "publisher": "Ripstone Ltd",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "World of Warships",
+        "publisher": "Wargaming Group Limited",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Heroes & Generals WWII",
+        "publisher": "TLM Partners, Inc",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Rocket League®",
+        "publisher": "Psyonix LLC",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Primordials: Battle of Gods",
+        "publisher": "WIREGAMES d.o.o.",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Path of Exile",
+        "publisher": "Grinding Gear Games",
+        "price": 0.0,
+        "currency": "INR"
+      },
+      {
+        "title": "World of Warships — Starter Pack: Ishizuchi",
+        "publisher": "Wargaming Group Limited",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Thu, 18 Jun 2026 15:00:14 -0000",
+    "orderId": "F2606181457396485",
+    "orderDate": "June 18, 2026",
+    "items": [
+      {
+        "title": "Warhammer 40K Speed Freeks",
+        "publisher": "Wired Productions",
+        "price": 719.0,
+        "currency": "INR"
+      },
+      {
+        "title": "The Ouroboros King",
+        "publisher": "Plug In Digital SAS",
+        "price": 359.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt_1.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Sun, 28 Jun 2026 08:12:47 -0000",
+    "orderId": "F2606280810195969",
+    "orderDate": "June 28, 2026",
+    "items": [
+      {
+        "title": "Voidwrought",
+        "publisher": "Kwalee",
+        "price": 719.0,
+        "currency": "INR"
+      },
+      {
+        "title": "RollerCoaster Tycoon 3 Complete Edition",
+        "publisher": "Atari",
+        "price": 1490.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt_2.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Fri, 29 May 2026 10:25:08 -0000",
+    "orderId": "F2605291022377931",
+    "orderDate": "May 29, 2026",
+    "items": [
+      {
+        "title": "Calico",
+        "publisher": "White Thorn Digital",
+        "price": 279.0,
+        "currency": "INR"
+      },
+      {
+        "title": "LONESTAR",
+        "publisher": "Thermite Games",
+        "price": 610.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt_3.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Thu, 21 May 2026 15:34:44 -0000",
+    "orderId": "F2605211531459269",
+    "orderDate": "May 21, 2026",
+    "items": [
+      {
+        "title": "Down in Bermuda",
+        "publisher": "Yak & Co",
+        "price": 469.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Tomb Raider I-III Remastered Starring Lara Croft",
+        "publisher": "Aspyr Media, Inc.",
+        "price": 1069.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt_4.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Sat, 16 May 2026 14:07:34 -0000",
+    "orderId": "F2605161404518642",
+    "orderDate": "May 16, 2026",
+    "items": [
+      {
+        "title": "Sunderfolk - Standard Edition",
+        "publisher": "Dreamhaven, Inc.",
+        "price": 2000.0,
+        "currency": "INR"
+      },
+      {
+        "title": "The Telltale Batman Shadows Edition",
+        "publisher": "LCG Entertainment, Inc.",
+        "price": 819.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Game of Thrones Kingsroad",
+        "publisher": "NETMARBLE",
+        "price": 0.0,
+        "currency": "INR"
+      }
+    ]
+  },
+  {
+    "source": "Your Epic Games Receipt_5.eml",
+    "recipient": "superdoramon59@gmail.com",
+    "dateHeader": "Wed, 13 May 2026 13:31:48 -0000",
+    "orderId": "F2605131329102605",
+    "orderDate": "May 13, 2026",
+    "items": [
+      {
+        "title": "Arranger: A Role-Puzzling Adventure",
+        "publisher": "Furniture & Mattress LLC",
+        "price": 889.0,
+        "currency": "INR"
+      },
+      {
+        "title": "Trash Goblin",
+        "publisher": "Spilt Milk Studios",
+        "price": 719.0,
+        "currency": "INR"
+      }
+    ]
+  }
+]

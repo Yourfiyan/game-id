@@ -1,0 +1,116 @@
+/* ==========================================================================
+   Game Library Dashboard - design tokens
+   Dark, glass-forward desktop UI. Reference points: Steam Deck OS, Playnite,
+   GOG Galaxy, Xbox app.
+
+   One rule encoded directly in these tokens: CURRENT STORE VALUE is the
+   primary monetary metric and uses --text-primary at display sizes.
+   PURCHASE PRICE is ownership metadata - it renders via --text-faint at
+   --fs-micro inside .ownership-panel, deliberately low-prominence.
+   ========================================================================== */
+
+:root {
+  /* ---- surface ---------------------------------------------------------- */
+  --bg-void: #07080c;
+  --bg-base: #0b0d13;
+  --bg-raised: #11141c;
+  --bg-overlay: #161a24;
+
+  /* frosted glass */
+  --glass-bg: rgba(22, 26, 36, 0.62);
+  --glass-bg-strong: rgba(22, 26, 36, 0.86);
+  --glass-border: rgba(255, 255, 255, 0.07);
+  --glass-border-hover: rgba(255, 255, 255, 0.14);
+  --glass-blur: 20px;
+  --glass-blur-heavy: 36px;
+
+  /* ---- accent ----------------------------------------------------------- */
+  --accent: #7c5cff;
+  --accent-hot: #9b7dff;
+  --accent-cool: #3ddad7;
+  --accent-gradient: linear-gradient(135deg, #7c5cff 0%, #3ddad7 100%);
+  --accent-glow: rgba(124, 92, 255, 0.35);
+
+  /* semantic */
+  --ok: #3ecf8e;
+  --warn: #f0b132;
+  --danger: #f2545b;
+  --info: #4aa3ff;
+
+  /* confidence badges (Phase 1 provenance, surfaced in the UI) */
+  --conf-high: #3ecf8e;
+  --conf-medium: #f0b132;
+  --conf-low: #f2545b;
+
+  /* ---- text ------------------------------------------------------------- */
+  --text-primary: #f4f6fb;
+  --text-secondary: #b6bccb;
+  --text-muted: #7d859a;
+  --text-faint: #565e73;   /* ownership / de-emphasised metadata only */
+
+  /* ---- type ------------------------------------------------------------- */
+  --font-sans: "Inter", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system,
+               "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", ui-monospace, "SF Mono",
+               Consolas, monospace;
+
+  --fs-micro: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-base: 14px;
+  --fs-md: 16px;
+  --fs-lg: 20px;
+  --fs-xl: 26px;
+  --fs-2xl: 34px;
+  --fs-display: 44px;
+
+  --lh-tight: 1.15;
+  --lh-normal: 1.5;
+  --lh-relaxed: 1.65;
+
+  /* ---- space ------------------------------------------------------------ */
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+  --sp-10: 40px;
+  --sp-12: 48px;
+  --sp-16: 64px;
+
+  /* ---- radius / shadow -------------------------------------------------- */
+  --r-sm: 6px;
+  --r-md: 10px;
+  --r-lg: 14px;
+  --r-xl: 20px;
+  --r-full: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.55);
+  --shadow-glow: 0 0 0 1px var(--accent-glow), 0 8px 32px var(--accent-glow);
+
+  /* ---- motion ----------------------------------------------------------- */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --t-fast: 120ms;
+  --t-base: 180ms;
+  --t-slow: 320ms;
+
+  /* ---- layout ----------------------------------------------------------- */
+  --sidebar-w: 248px;
+  --topbar-h: 64px;
+  --content-max: 1680px;
+}
+
+/* Respect users who ask for less motion. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
