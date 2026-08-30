@@ -1,118 +1,124 @@
 /* ==========================================================================
-   App Router
-   Hash-based client-side routing with account switching
+   Game ID — App Router
    ========================================================================== */
 
-import { loadAccount, getCurrentAccount } from './services/loader.js';
+import { loadAccount, getCurrentAccount, getAccounts } from './services/loader.js';
 import { renderHome } from './pages/home.js';
 import { renderLibrary } from './pages/library.js';
 import { renderGameDetail } from './pages/game-detail.js';
 import { renderAnalytics } from './pages/analytics.js';
+import { renderAccounts } from './pages/accounts.js';
+import { renderStores } from './pages/stores.js';
+import { renderCollections } from './pages/collections.js';
+import { renderSearch } from './pages/search.js';
+import { renderSettings } from './pages/settings.js';
 
 const routes = {
-  '': renderHome,
   home: renderHome,
+  accounts: renderAccounts,
   library: renderLibrary,
-  game: renderGameDetail,
+  stores: renderStores,
   analytics: renderAnalytics,
+  collections: renderCollections,
+  search: renderSearch,
+  settings: renderSettings,
+};
+
+const pageTitles = {
+  home: 'Home',
+  accounts: 'Accounts',
+  library: 'Library',
+  stores: 'Stores',
+  analytics: 'Analytics',
+  collections: 'Collections',
+  search: 'Search',
+  settings: 'Settings',
 };
 
 let currentRoute = null;
 
-async function navigate(route, params = {}) {
+export async function navigate(route, params) {
+  if (currentRoute === route && !params) return;
   currentRoute = route;
 
+  const renderer = routes[route];
+  if (!renderer) return;
+
   const content = document.getElementById('content');
-  const breadcrumb = document.getElementById('breadcrumb');
+  content.innerHTML = '<div class="loading"><div class="spinner"></div>Loading...</div>';
 
-  // Update nav active state
-  document.querySelectorAll('.nav-link').forEach(link => {
-    const href = link.getAttribute('href').slice(1);
-    link.classList.toggle('active', href === route);
+  document.getElementById('breadcrumb').textContent = pageTitles[route] || route;
+
+  // Update active nav
+  document.querySelectorAll('.nav-link').forEach(a => {
+    a.classList.toggle('active', a.dataset.route === route);
   });
 
-  // Update breadcrumb
-  const labels = {
-    '': 'Home',
-    home: 'Home',
-    library: 'Library',
-    game: params.title || 'Game Detail',
-    analytics: 'Analytics'
-  };
-  breadcrumb.textContent = labels[route] || route;
-
-  // Render page
-  content.innerHTML = '<div class="loading">Loading...</div>';
-
   try {
-    const account = getCurrentAccount();
-    if (routes[route]) {
-      await routes[route](params);
-    } else {
-      content.innerHTML = '<div class="loading">Page not found</div>';
-    }
+    await renderer(params);
   } catch (err) {
-    content.innerHTML = `<div class="loading" style="color: var(--danger);">Error: ${err.message}</div>`;
-    console.error('[Router] Navigation failed:', err);
+    console.error(`[Router] ${route} failed:`, err);
+    content.innerHTML = `
+      <div class="empty-state">
+        <p class="empty-state-title">Something went wrong</p>
+        <p class="empty-state-body">${escapeHtml(err.message)}</p>
+      </div>`;
   }
 }
 
-async function switchAccount(account) {
-  try {
-    await loadAccount(account);
-
-    // Update UI
-    document.querySelectorAll('.account-btn').forEach(btn => {
-      btn.classList.toggle('active', btn.dataset.account === account);
-    });
-
-    // Re-render current page
-    if (currentRoute) {
-      await navigate(currentRoute);
-    }
-  } catch (err) {
-    console.error('[Router] Account switch failed:', err);
-  }
+export function escapeHtml(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-// Initialize
+/* --------------------------------------------------------------- bootstrap */
 document.addEventListener('DOMContentLoaded', async () => {
-  // Account switcher
-  document.querySelectorAll('.account-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchAccount(btn.dataset.account));
-  });
+  // Theme
+  const saved = localStorage.getItem('gameid-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', saved);
 
-  // Nav links
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', (e) => {
-      e.preventDefault();
-      const route = link.getAttribute('href').slice(1);
-      window.location.hash = route;
-    });
-  });
+  // Load config first (needed by everything)
+  await loadAccount('A');
 
-  // Hash change
-  // Hash change. Library links ids with encodeURIComponent, so decode here or
-  // ids containing %20 / %26 never match the catalog.
-  const routeFromHash = () => {
-    const hash = window.location.hash.slice(1) || 'home';
-    const [route, ...rest] = hash.split('/');
-    let id = rest.join('/') || undefined;
-    if (id) {
-      try { id = decodeURIComponent(id); } catch { /* leave raw if malformed */ }
-    }
-    return { route, id };
-  };
-
-  window.addEventListener('hashchange', () => {
-    const { route, id } = routeFromHash();
-    navigate(route, { id });
-  });
-
-  // Load initial account and route
-  await loadAccount('B');
-  const { route, id } = routeFromHash();
-  await navigate(route, { id });
+  // Default route
+  const hash = window.location.hash.replace('#', '') || 'home';
+  const [route] = hash.split('/');
+  await navigate(route);
 });
 
-export { navigate };
+window.addEventListener('hashchange', () => {
+  const [route] = window.location.hash.replace('#', '').split('/');
+  navigate(route);
+});
+
+// Theme toggle on avatar click (or could be moved to settings)
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+    e.preventDefault();
+    navigate('search');
+  }
+});
+
+// Topbar search — navigate to search page on Enter
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && e.target.id === 'topbar-search') {
+    const q = e.target.value.trim();
+    navigate('search', q || undefined);
+  }
+});
+
+// Account switcher
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.account-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const acct = btn.dataset.account;
+      document.querySelectorAll('.account-btn').forEach(b => b.classList.toggle('active', b.dataset.account === acct));
+      await loadAccount(acct);
+      // Refresh current view
+      const hash = window.location.hash.replace('#', '') || 'home';
+      const [route] = hash.split('/');
+      await navigate(route);
+    });
+  });
+});

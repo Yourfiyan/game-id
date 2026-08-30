@@ -1,0 +1,97 @@
+/* ==========================================================================
+   Game ID — Stores Page
+   ========================================================================== */
+
+.store-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.store-card {
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  transition: all var(--t-fast) var(--ease-standard);
+}
+
+.store-card:hover {
+  border-color: var(--stroke-subtle);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .store-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.store-card-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--stroke-divider);
+}
+
+.store-icon {
+  font-size: 20px;
+  width: 28px;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.store-name {
+  flex: 1;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--fg-primary);
+}
+
+.store-count-badge {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--brand-hover);
+  background: rgba(15,108,189,0.1);
+  padding: 2px 10px;
+  border-radius: var(--r-circular);
+}
+
+.store-card-body {
+  padding: 14px 16px;
+}
+
+.store-stat {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  margin-bottom: 8px;
+}
+
+.store-stat span:first-child { color: var(--fg-tertiary); }
+
+.store-bar-track {
+  height: 4px;
+  background: var(--bg-subtle);
+  border-radius: var(--r-circular);
+  overflow: hidden;
+}
+
+.store-bar-fill {
+  height: 100%;
+  background: var(--brand-rest);
+  border-radius: var(--r-circular);
+  transition: width var(--t-normal) var(--ease-decelerate);
+}
+
+.store-top-game {
+  font-size: 11px;
+  color: var(--fg-quaternary);
+  margin-top: 8px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+@media (max-width: 800px) {
+  .store-grid { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+}

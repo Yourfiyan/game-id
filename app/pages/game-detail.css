@@ -1,373 +1,133 @@
 /* ==========================================================================
-   Game Detail Page
-
-   The monetary hierarchy is enforced here, not left to the markup:
-   .price-primary uses display type at --text-primary, while .ownership-panel
-   is capped at --fs-micro / --text-faint no matter what it contains.
+   Game ID — Game Detail Page
    ========================================================================== */
 
-.detail-page {
-  max-width: var(--content-max);
-  margin: 0 auto;
-  padding-bottom: var(--sp-12);
+.game-detail-page { }
+
+.game-detail-hero {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 28px;
+  align-items: flex-start;
 }
 
-.detail-missing {
+.game-detail-cover {
+  width: 200px;
+  height: 267px;
+  border-radius: var(--r-lg);
+  background: var(--bg-subtle);
+  flex-shrink: 0;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--sp-5);
-  height: 60vh;
-  color: var(--text-muted);
 }
 
-.detail-missing .btn-secondary {
-  width: auto;
-  padding: var(--sp-3) var(--sp-6);
-  text-decoration: none;
-  display: inline-block;
-}
-
-/* ---- hero ---------------------------------------------------------------- */
-.detail-hero {
-  position: relative;
-  margin: calc(var(--sp-6) * -1) calc(var(--sp-6) * -1) var(--sp-8);
-  padding: var(--sp-12) var(--sp-6) var(--sp-8);
-  background-color: var(--bg-base);
-  background-size: cover;
-  background-position: center 22%;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.detail-hero-inner {
+.cover-fallback {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-circular);
+  border: 2px solid var(--fg-quaternary);
   display: flex;
-  align-items: flex-end;
-  gap: var(--sp-8);
-  max-width: var(--content-max);
-  margin: 0 auto;
-}
-
-.detail-cover {
-  width: 200px;
-  aspect-ratio: 3 / 4;
-  flex-shrink: 0;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--bg-overlay);
-  border-radius: var(--r-lg);
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--glass-border);
-}
-
-.detail-headline h1 {
-  font-size: var(--fs-display);
-  font-weight: 700;
-  line-height: var(--lh-tight);
-  letter-spacing: -0.02em;
-  margin-bottom: var(--sp-3);
-}
-
-.detail-byline {
-  font-size: var(--fs-md);
-  color: var(--text-secondary);
-  margin-bottom: var(--sp-4);
-}
-
-.detail-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  margin-bottom: var(--sp-4);
-}
-
-.chip {
-  padding: var(--sp-1) var(--sp-3);
-  font-size: var(--fs-xs);
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
   font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--glass-bg-strong);
-  border: 1px solid var(--glass-border);
-  border-radius: var(--r-full);
-  backdrop-filter: blur(var(--glass-blur));
+  color: var(--fg-quaternary);
+  opacity: 0.6;
 }
 
-.chip-store { color: var(--accent-cool); }
-.chip-rating { color: var(--ok); }
-.chip-conf.conf-high { color: var(--conf-high); border-color: rgba(62, 207, 142, 0.35); }
-.chip-conf.conf-medium { color: var(--conf-medium); border-color: rgba(240, 177, 50, 0.35); }
-.chip-conf.conf-low { color: var(--conf-low); border-color: rgba(242, 84, 91, 0.35); }
+.game-detail-info {
+  flex: 1;
+  min-width: 0;
+  padding-top: 4px;
+}
 
-.detail-tags {
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.detail-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  letter-spacing: -0.01em;
+}
+
+.detail-developer {
+  font-size: 13px;
+  color: var(--fg-tertiary);
+  margin-bottom: 4px;
+}
+
+.detail-publisher {
+  font-size: 13px;
+  color: var(--fg-tertiary);
+  margin-bottom: 12px;
+}
+
+.detail-meta-row {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--sp-2);
+  gap: 8px;
+  margin-bottom: 16px;
 }
 
-.tag {
-  padding: var(--sp-1) var(--sp-2);
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-  background: rgba(255, 255, 255, 0.04);
+.detail-meta-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  font-size: 12px;
+  color: var(--fg-secondary);
+  background: var(--bg-subtle);
   border-radius: var(--r-sm);
 }
 
-/* ---- columns ------------------------------------------------------------- */
-.detail-columns {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 340px;
-  gap: var(--sp-6);
-  align-items: start;
-}
-
-.detail-main,
-.detail-side {
+.detail-stats {
   display: flex;
-  flex-direction: column;
-  gap: var(--sp-5);
-  min-width: 0;
+  gap: 24px;
 }
 
-.detail-block h3 {
-  font-size: var(--fs-lg);
+.detail-stat {}
+
+.detail-stat-val {
+  font-size: 18px;
   font-weight: 600;
-  margin-bottom: var(--sp-4);
+  color: var(--fg-primary);
 }
 
-.detail-summary {
-  font-size: var(--fs-md);
-  line-height: var(--lh-relaxed);
-  color: var(--text-secondary);
-  margin-bottom: var(--sp-4);
-}
-
-.detail-about {
-  font-size: var(--fs-sm);
-  line-height: var(--lh-relaxed);
-  color: var(--text-muted);
-}
-
-.detail-footnote {
-  margin-top: var(--sp-4);
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
-  font-style: italic;
-}
-
-/* Any field the pipeline could not confirm. Never styled as a real value. */
-.unverified {
-  font-size: var(--fs-xs);
-  font-style: italic;
-  color: var(--warn);
-  opacity: 0.85;
-}
-
-/* ---- ratings ------------------------------------------------------------- */
-.rating-rows {
-  display: flex;
-  flex-direction: column;
-  gap: var(--sp-3);
-}
-
-.rating-row {
-  display: grid;
-  grid-template-columns: 150px minmax(0, 1fr) 40px;
-  align-items: center;
-  gap: var(--sp-3);
-}
-
-.rating-name {
-  font-size: var(--fs-sm);
-  color: var(--text-secondary);
-}
-
-.rating-track {
-  height: 6px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: var(--r-full);
-  overflow: hidden;
-}
-
-.rating-fill {
-  height: 100%;
-  background: var(--accent-gradient);
-  border-radius: var(--r-full);
-}
-
-.rating-num {
-  font-size: var(--fs-sm);
-  font-weight: 700;
-  text-align: right;
-}
-
-.rating-none {
-  grid-column: 2 / -1;
-  font-size: var(--fs-xs);
-  font-style: italic;
-  color: var(--text-faint);
-}
-
-.rating-note {
-  font-size: var(--fs-xs);
-  color: var(--text-faint);
-  margin-left: 150px;
-  padding-left: var(--sp-3);
-}
-
-/* ---- features ------------------------------------------------------------ */
-.feature-grid {
-  list-style: none;
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: var(--sp-3);
-}
-
-.feature-grid li {
-  display: flex;
-  align-items: center;
-  gap: var(--sp-2);
-  font-size: var(--fs-sm);
-  color: var(--text-secondary);
-}
-
-.feature-tick {
-  color: var(--ok);
-  font-weight: 700;
-}
-
-/* ---- gallery ------------------------------------------------------------- */
-.gallery {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-  gap: var(--sp-3);
-}
-
-.gallery-shot {
-  aspect-ratio: 16 / 9;
-  background-size: cover;
-  background-position: center;
-  background-color: var(--bg-overlay);
-  border-radius: var(--r-md);
-  border: 1px solid var(--glass-border);
-  transition: transform var(--t-base) var(--ease);
-}
-
-.gallery-shot:hover {
-  transform: scale(1.02);
-}
-
-/* ---- pricing (PRIMARY monetary metric) ----------------------------------- */
-.price-primary {
-  font-size: var(--fs-display);
-  font-weight: 700;
-  line-height: var(--lh-tight);
-  letter-spacing: -0.02em;
-  color: var(--text-primary);
-}
-
-.price-strike {
-  font-size: var(--fs-sm);
-  color: var(--text-faint);
-  text-decoration: line-through;
-  margin-top: var(--sp-1);
-}
-
-.price-rows,
-.fact-rows {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--sp-2) var(--sp-4);
-  margin-top: var(--sp-5);
-}
-
-.price-rows dt,
-.fact-rows dt {
-  font-size: var(--fs-xs);
-  color: var(--text-muted);
+.detail-stat-label {
+  font-size: 11px;
+  color: var(--fg-tertiary);
   text-transform: uppercase;
   letter-spacing: 0.04em;
+  margin-top: 2px;
 }
 
-.price-rows dd,
-.fact-rows dd {
-  font-size: var(--fs-sm);
-  color: var(--text-secondary);
-  text-align: right;
-  overflow-wrap: anywhere;
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
 }
 
-/* ---- ownership (LOWEST prominence on the page) --------------------------- */
-.ownership-panel {
-  margin-top: var(--sp-10);
-  padding: var(--sp-4) var(--sp-5);
-  border-top: 1px solid rgba(255, 255, 255, 0.04);
-  opacity: 0.7;
+.detail-grid .widget {
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--r-lg);
+  padding: 20px;
 }
 
-.ownership-panel h4 {
-  font-size: var(--fs-micro);
+.detail-grid .widget-title {
+  font-size: 14px;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-faint);
-  margin-bottom: var(--sp-3);
+  color: var(--fg-primary);
+  margin-bottom: 16px;
 }
 
-.ownership-panel dl {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2) var(--sp-6);
-}
-
-/* Both terms and values are pinned faint/micro so no future edit can
-   accidentally promote purchase price into a headline figure. */
-.ownership-panel dt,
-.ownership-panel dd {
-  font-size: var(--fs-micro);
-  font-weight: 400;
-  color: var(--text-faint);
-}
-
-.ownership-panel dt::after {
-  content: ':';
-  margin-right: var(--sp-1);
-}
-
-.ownership-panel dd {
-  margin-right: var(--sp-4);
-}
-
-.ownership-panel .mono {
-  font-family: var(--font-mono);
-}
-
-/* ---- responsive ---------------------------------------------------------- */
-@media (max-width: 1100px) {
-  .detail-columns {
-    grid-template-columns: minmax(0, 1fr);
-  }
-
-  .rating-row {
-    grid-template-columns: 120px minmax(0, 1fr) 36px;
-  }
-
-  .rating-note {
-    margin-left: 120px;
-  }
-}
-
-@media (max-width: 768px) {
-  .detail-hero-inner {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: var(--sp-5);
-  }
-
-  .detail-cover {
-    width: 140px;
-  }
-
-  .detail-headline h1 {
-    font-size: var(--fs-2xl);
-  }
+@media (max-width: 700px) {
+  .game-detail-hero { flex-direction: column; }
+  .game-detail-cover { width: 160px; height: 213px; }
 }

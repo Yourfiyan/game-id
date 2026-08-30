@@ -1,0 +1,80 @@
+/* ==========================================================================
+   Game ID — Collections Page
+   ========================================================================== */
+
+.collections-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.collection-card {
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--r-lg);
+  padding: 20px;
+  cursor: pointer;
+  transition: all var(--t-fast) var(--ease-standard);
+}
+
+.collection-card:hover {
+  border-color: var(--stroke-subtle);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+[data-theme="light"] .collection-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.collection-card:hover .coll-icon { transform: scale(1.1); }
+
+.coll-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.coll-icon {
+  font-size: 22px;
+  transition: transform var(--t-fast) var(--ease-standard);
+}
+
+.coll-name {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary);
+}
+
+.coll-meta {
+  font-size: 12px;
+  color: var(--fg-tertiary);
+  margin-bottom: 12px;
+}
+
+.coll-preview {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.coll-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  font-size: 11px;
+  color: var(--fg-secondary);
+  background: var(--bg-subtle);
+  border-radius: var(--r-sm);
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+
+.coll-tag:hover {
+  color: var(--fg-primary);
+  background: var(--bg-nav-hover);
+}
+
+@media (max-width: 700px) {
+  .collections-grid { grid-template-columns: 1fr; }
+}

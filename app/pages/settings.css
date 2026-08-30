@@ -1,0 +1,97 @@
+/* ==========================================================================
+   Game ID — Settings Page
+   ========================================================================== */
+
+.settings-page {
+  max-width: 680px;
+}
+
+.settings-section {
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--r-lg);
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.settings-section h3 {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--fg-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 16px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--stroke-divider);
+}
+
+.setting-row:last-child { border-bottom: none; }
+
+.setting-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  margin-bottom: 2px;
+}
+
+.setting-desc {
+  font-size: 12px;
+  color: var(--fg-tertiary);
+}
+
+.setting-control {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--fg-primary);
+  background: var(--bg-subtle);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--r-sm);
+  padding: 6px 28px 6px 10px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23949494' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+}
+
+.setting-control:focus { border-color: var(--stroke-focus-outer); }
+
+/* Toggle */
+.toggle { position: relative; display: inline-block; width: 40px; height: 20px; flex-shrink: 0; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle-track {
+  position: absolute; inset: 0;
+  background: var(--bg-subtle);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--r-circular);
+  cursor: pointer;
+  transition: all var(--t-fast);
+}
+.toggle-thumb {
+  position: absolute;
+  top: 3px; left: 3px;
+  width: 12px; height: 12px;
+  background: var(--fg-tertiary);
+  border-radius: var(--r-circular);
+  transition: all var(--t-fast);
+}
+.toggle input:checked + .toggle-track {
+  background: var(--brand-rest);
+  border-color: var(--brand-rest);
+}
+.toggle input:checked + .toggle-track .toggle-thumb {
+  transform: translateX(20px);
+  background: #fff;
+}
+
+@media (max-width: 500px) {
+  .setting-row { flex-direction: column; align-items: flex-start; }
+}

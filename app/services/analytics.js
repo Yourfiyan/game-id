@@ -329,6 +329,57 @@ export function collectionHealth(games) {
   };
 }
 
+/* ---------------------------------------------------------------- confidence */
+export function confidenceDistribution(games) {
+  const playable = games.filter(isGame);
+  const buckets = [
+    { label: 'High',   count: playable.filter(g => g.confidence === 'High').length },
+    { label: 'Medium', count: playable.filter(g => g.confidence === 'Medium').length },
+    { label: 'Low',    count: playable.filter(g => g.confidence === 'Low').length },
+  ];
+  return { items: buckets };
+}
+
+/* ---------------------------------------------------------------- price */
+export function priceDistribution(games) {
+  const playable = games.filter(isGame);
+  const buckets = [
+    { label: 'Free',       count: playable.filter(g => g.isFree || (g.currentPrice ?? 0) === 0).length },
+    { label: '< $5',       count: playable.filter(g => (g.currentPrice ?? 0) > 0 && g.currentPrice < 5).length },
+    { label: '$5–$14',     count: playable.filter(g => (g.currentPrice ?? 0) >= 5 && g.currentPrice < 15).length },
+    { label: '$15–$29',    count: playable.filter(g => (g.currentPrice ?? 0) >= 15 && g.currentPrice < 30).length },
+    { label: '$30–$59',    count: playable.filter(g => (g.currentPrice ?? 0) >= 30 && g.currentPrice < 60).length },
+    { label: '$60+',       count: playable.filter(g => (g.currentPrice ?? 0) >= 60).length },
+  ];
+  const known = playable.filter(g => g.currentPrice != null);
+  return {
+    items: buckets,
+    unknown: playable.length - known.length,
+    currency: known.length ? known[0].currency : 'USD',
+  };
+}
+
+/* ------------------------------------------------------------ playtime */
+export function playtimeDistribution(games) {
+  const playable = games.filter(isGame);
+  const hours = playable.map(g => ({
+    title: g.title,
+    price: g.currentPrice ?? 0,
+    playtime: (g.playtime ?? 0) / SECONDS_PER_HOUR,
+    currency: g.currency,
+  }));
+  const played = hours.filter(h => h.playtime > 0);
+  const buckets = [
+    { label: '0 h',      count: hours.filter(h => h.playtime === 0).length },
+    { label: '0.1–1 h',  count: played.filter(h => h.playtime > 0 && h.playtime < 1).length },
+    { label: '1–5 h',    count: played.filter(h => h.playtime >= 1 && h.playtime < 5).length },
+    { label: '5–20 h',   count: played.filter(h => h.playtime >= 5 && h.playtime < 20).length },
+    { label: '20–100 h', count: played.filter(h => h.playtime >= 20 && h.playtime < 100).length },
+    { label: '100+ h',   count: played.filter(h => h.playtime >= 100).length },
+  ];
+  return { items: buckets, scatter: hours, totalPlayable: playable.length };
+}
+
 /* ------------------------------------------------------------------ facade */
 export function computeAll(games, accountLabel) {
   return {

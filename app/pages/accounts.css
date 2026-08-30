@@ -1,0 +1,177 @@
+/* ==========================================================================
+   Game ID — Accounts Page
+   ========================================================================== */
+
+.accounts-page {
+  padding: 24px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.accounts-header {
+  margin-bottom: 24px;
+}
+
+.accounts-header h1 {
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--fg-primary);
+}
+
+.accounts-header p {
+  font-size: 13px;
+  color: var(--fg-tertiary);
+  margin-top: 4px;
+}
+
+.account-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 16px;
+  margin-bottom: 28px;
+}
+
+.account-card {
+  background: var(--bg-layer);
+  border: 1px solid var(--stroke-divider);
+  border-radius: var(--r-lg);
+  padding: 24px;
+}
+
+.account-card-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--stroke-divider);
+}
+
+.account-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-circular);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.account-avatar.a { background: rgba(15,108,189,0.12); }
+.account-avatar.b { background: rgba(16,124,16,0.10); }
+
+.account-card-head h2 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--fg-primary);
+}
+
+.account-card-head .acct-meta {
+  font-size: 12px;
+  color: var(--fg-tertiary);
+  margin-top: 2px;
+}
+
+/* ---- overview (Home-style) ----------------------------------------------- */
+.accounts-page .overview-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.stat-box {
+  background: var(--bg-subtle);
+  border-radius: var(--r-md);
+  padding: 14px;
+  text-align: center;
+}
+
+.stat-value {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--fg-primary);
+  line-height: 1.2;
+}
+
+.stat-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--fg-tertiary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-top: 4px;
+}
+
+/* ---- breakdown ----------------------------------------------------------- */
+.accounts-page .breakdown-list {
+  list-style: none;
+}
+
+.accounts-page .breakdown-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--stroke-divider);
+  font-size: 13px;
+}
+
+.accounts-page .breakdown-list li:last-child { border-bottom: none; }
+.accounts-page .breakdown-list li span:first-child { color: var(--fg-secondary); }
+.accounts-page .breakdown-list li span:last-child { color: var(--fg-primary); font-weight: 500; }
+
+.accounts-page .shared-title {
+  margin-bottom: 16px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.accounts-page .shared-table { max-height: 280px; overflow-y: auto; }
+
+.accounts-page .shared-table table { font-size: 12px; }
+
+.accounts-page .shared-table th { padding: 8px 12px; font-size: 11px; }
+.accounts-page .shared-table td { padding: 8px 12px; }
+
+.accounts-page .account-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--fg-primary);
+  margin-bottom: 4px;
+}
+
+.accounts-page .acct-detail {
+  font-size: 12px;
+  color: var(--fg-tertiary);
+  margin-top: 2px;
+}
+
+/* ---- app footer ---------------------------------------------------------- */
+.app-footer {
+  margin-top: 32px;
+  padding-top: 20px;
+  border-top: 1px solid var(--stroke-divider);
+  text-align: center;
+}
+
+.app-footer .version {
+  font-size: 12px;
+  color: var(--fg-quaternary);
+  margin-bottom: 4px;
+}
+
+.app-footer .copyright {
+  font-size: 11px;
+  color: var(--fg-quaternary);
+  opacity: 0.7;
+}
+
+@media (max-width: 800px) {
+  .account-cards { grid-template-columns: 1fr; }
+}

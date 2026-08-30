@@ -1,166 +1,223 @@
 /* ==========================================================================
-   Home Page - Phase 4 implementation
-   Hero cards (total games, estimated value, recently added, highest rated)
-   + widgets for timeline, genre/platform/rating distribution, collection health
+   Game ID — Home Page
    ========================================================================== */
 
-import { getGames } from '../services/loader.js';
-import { computeAll } from '../services/analytics.js';
+import { getGames, getCurrentAccount, getAccounts } from '../services/loader.js';
+import { overview, genreDistribution, storeDistribution, acquisitionTimeline, completionAnalysis, collectionHealth } from '../services/analytics.js';
+import { formatPrice } from './library.js';
+
+const UNKNOWN = '<span style="color:var(--fg-quaternary);font-style:italic">Needs Manual Verification</span>';
+
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 export async function renderHome() {
-  const content = document.getElementById('content');
   const games = getGames();
-  const analytics = computeAll(games, 'Current');
+  if (!games.length) {
+    document.getElementById('content').innerHTML =
+      '<div class="page loading"><div class="spinner"></div>Loading…</div>';
+    return;
+  }
 
-  content.innerHTML = `
-    <div class="home-page">
-      <section class="hero-cards">
-        ${renderHeroCard('Total Games', analytics.overview.totalGames, '🎮', 'primary')}
-        ${renderHeroCard('Library Value', formatCurrency(analytics.value.totalCurrentValue, analytics.value.currency), '💎', 'accent')}
-        ${renderHeroCard('Recently Added', analytics.acquisitionTimeline.lastAcquisition || 'N/A', '📅', 'info')}
-        ${renderHeroCard('Avg. Rating', formatRating(analytics.ratings.metacritic.average), '⭐', 'ok')}
-      </section>
+  const acct = getCurrentAccount();
+  const ov = overview(games);
+  const genres = genreDistribution(games);
+  const stores = storeDistribution(games);
+  const timeline = acquisitionTimeline(games);
+  const comp = completionAnalysis(games);
+  const health = collectionHealth(games);
 
-      <section class="widgets">
-        <div class="widget glass-panel">
-          <h3>Collection Breakdown</h3>
-          ${renderPieData(analytics.classifications.distribution)}
-        </div>
+  const priceSym = games[0]?.currency === 'USD' ? '$' : '₹';
 
-        <div class="widget glass-panel">
-          <h3>Top Genres</h3>
-          ${renderBarData(analytics.genres.distribution.slice(0, 8))}
-        </div>
+  document.getElementById('content').innerHTML = `
+    <div class="page">
+      <div class="page-header">
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Account ${esc(acct)} · ${ov.totalEntitlements} entitlements · ${ov.byClassification.game ?? 0} games</p>
+      </div>
 
-        <div class="widget glass-panel">
-          <h3>Release Timeline</h3>
-          ${renderTimelineData(analytics.releaseTimeline.byDecade)}
-        </div>
+      ${renderKpis(ov, priceSym, comp, health)}
 
-        <div class="widget glass-panel">
-          <h3>Collection Health</h3>
-          <div class="health-score">
-            <div class="score-circle">${Math.round(analytics.health.metadataCompletenessPercent)}%</div>
-            <p class="text-muted">Metadata Completeness</p>
-          </div>
-          <div class="health-stats">
-            <div class="stat">
-              <span class="stat-label">High Confidence</span>
-              <span class="stat-value">${analytics.overview.confidence.high}</span>
-            </div>
-            <div class="stat">
-              <span class="stat-label">Needs Review</span>
-              <span class="stat-value text-warn">${analytics.health.needsManualVerification}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="widget glass-panel">
-          <h3>Value Analysis</h3>
-          <div class="value-stats">
-            <div class="stat-row">
-              <span>Current Value</span>
-              <span class="text-gradient">${formatCurrency(analytics.value.totalCurrentValue, analytics.value.currency)}</span>
-            </div>
-            <div class="stat-row">
-              <span>MSRP Total</span>
-              <span>${formatCurrency(analytics.overview.msrp.total, analytics.value.currency)}</span>
-            </div>
-            <div class="stat-row text-faint">
-              <span>Amount Paid</span>
-              <span>${formatCurrency(analytics.value.totalAmountPaid, analytics.value.currency)}</span>
-            </div>
-            <div class="stat-row">
-              <span>Savings</span>
-              <span class="text-ok">${formatCurrency(analytics.value.savingsVsCurrentValue, analytics.value.currency)}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="widget glass-panel">
-          <h3>Playtime</h3>
-          <div class="playtime-stats">
-            <div class="stat-big">
-              <span class="value">${Math.round(analytics.completion.totalHours)}</span>
-              <span class="label">Hours Played</span>
-            </div>
-            <div class="stat-row">
-              <span>Games Played</span>
-              <span>${analytics.completion.playedCount} / ${analytics.overview.totalGames}</span>
-            </div>
-            <div class="stat-row">
-              <span>Backlog</span>
-              <span>${analytics.completion.neverPlayedCount} (${Math.round(analytics.completion.backlogPercent)}%)</span>
-            </div>
-          </div>
-        </div>
-      </section>
-    </div>
-  `;
-}
-
-function renderHeroCard(title, value, icon, color) {
-  return `
-    <div class="hero-card glass-panel card-${color}">
-      <div class="hero-icon">${icon}</div>
-      <div class="hero-content">
-        <h3 class="hero-title">${title}</h3>
-        <div class="hero-value">${value}</div>
+      <div class="widget-grid">
+        ${renderTopGenres(genres)}
+        ${renderPlaytime(comp)}
+        ${renderValue(ov, priceSym)}
+        ${renderConfidence(ov)}
+        ${renderHealth(health)}
+        ${renderAcquisitions(timeline)}
       </div>
     </div>
   `;
 }
 
-function renderPieData(distribution) {
-  const total = distribution.reduce((s, d) => s + d.count, 0);
+function kpiIcon(icon, cls) {
+  return `<div class="kpi-icon ${cls}">${icon}</div>`;
+}
+
+function renderKpis(ov, sym, comp, health) {
+  const cardBg = 'var(--bg-layer)';
+  const val = ov.estimatedLibraryValue;
+  const fmt = val != null ? `${sym}${Math.round(val).toLocaleString()}` : '—';
+
   return `
-    <ul class="data-list">
-      ${distribution.map(d => `
-        <li>
-          <span>${d.label}</span>
-          <span class="text-secondary">${d.count} (${Math.round(d.count / total * 100)}%)</span>
-        </li>
-      `).join('')}
-    </ul>
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        ${kpiIcon('🎮', 'brand')}
+        <div class="kpi-body">
+          <div class="kpi-label">Games</div>
+          <div class="kpi-value">${ov.totalGames}</div>
+          <div class="kpi-sub">${ov.freeGames} free · ${ov.paidGames} priced</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        ${kpiIcon('💰', 'success')}
+        <div class="kpi-body">
+          <div class="kpi-label">Store value</div>
+          <div class="kpi-value">${fmt}</div>
+          <div class="kpi-sub">${ov.valueCoverage.known}/${ov.totalGames} known</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        ${kpiIcon('✅', 'success')}
+        <div class="kpi-body">
+          <div class="kpi-label">Confidence</div>
+          <div class="kpi-value">${ov.confidence.high + ov.confidence.medium}</div>
+          <div class="kpi-sub">${ov.confidence.high} high · ${ov.confidence.medium} medium · ${ov.confidence.low} low</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        ${kpiIcon('⏱', 'info')}
+        <div class="kpi-body">
+          <div class="kpi-label">Played</div>
+          <div class="kpi-value">${comp.playedCount}</div>
+          <div class="kpi-sub">${comp.backlogPercent != null ? `${Math.round(comp.backlogPercent)}% backlog` : ''}</div>
+        </div>
+      </div>
+      <div class="kpi-card">
+        ${kpiIcon('📊', 'caution')}
+        <div class="kpi-body">
+          <div class="kpi-label">Enriched</div>
+          <div class="kpi-value">${Math.round(health.metadataCompletenessPercent)}%</div>
+          <div class="kpi-sub">${ov.metadataCoverage.developer}/${ov.totalGames} with developer</div>
+        </div>
+      </div>
+    </div>
   `;
 }
 
-function renderBarData(distribution) {
-  const max = distribution[0]?.count || 1;
+function renderTopGenres(genres) {
+  const top = genres.distribution.slice(0, 8);
+  const max = top[0]?.count ?? 1;
   return `
-    <ul class="bar-chart">
-      ${distribution.map(d => `
-        <li class="bar-item">
-          <span class="bar-label">${d.label}</span>
-          <div class="bar-track">
-            <div class="bar-fill" style="width: ${d.count / max * 100}%"></div>
+    <div class="widget">
+      <div class="widget-title">Top genres</div>
+      ${top.length ? `
+        <div class="distribution-list">
+          ${top.map(g => {
+            const pct = (g.count / max * 100).toFixed(0);
+            return `
+              <div class="distribution-item">
+                <span class="distribution-label" title="${esc(g.label)}">${esc(g.label)}</span>
+                <div class="distribution-bar-track"><div class="distribution-bar-fill" style="width:${pct}%"></div></div>
+                <span class="distribution-pct">${g.count}</span>
+              </div>`;
+          }).join('')}
+        </div>
+      ` : '<p class="text-muted" style="font-size:13px">No genre data.</p>'}
+    </div>
+  `;
+}
+
+function renderPlaytime(comp) {
+  const h = Math.floor(comp.totalHours);
+  const m = Math.round((comp.totalHours - h) * 60);
+  return `
+    <div class="widget">
+      <div class="widget-title">Playtime</div>
+      <div class="playtime-hero">
+        <div class="playtime-number">${h}<span class="playtime-unit">h ${m}m</span></div>
+      </div>
+      <div class="data-list">
+        <li><span>Played</span><span>${comp.playedCount}</span></li>
+        <li><span>Never played</span><span>${comp.neverPlayedCount}</span></li>
+        <li><span>Avg (played titles)</span><span>${comp.averageHoursAcrossPlayed != null ? `${comp.averageHoursAcrossPlayed.toFixed(1)}h` : '—'}</span></li>
+        ${comp.longest ? `<li><span>Most played</span><span style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(comp.longest.title)}">${esc(comp.longest.title)}</span></li>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderValue(ov, sym) {
+  const total = ov.estimatedLibraryValue;
+  const fmt = total != null ? `${sym}${Math.round(total).toLocaleString()}` : '—';
+  return `
+    <div class="widget">
+      <div class="widget-title">Library value</div>
+      <div class="data-list">
+        <li><span>Current store value</span><span class="text-brand">${fmt}</span></li>
+        <li><span>MSRP total</span><span>${ov.msrp.total != null ? `${sym}${Math.round(ov.msrp.total).toLocaleString()}` : '—'}</span></li>
+        <li><span>MSRP median</span><span>${ov.msrp.median != null ? `${sym}${Math.round(ov.msrp.median).toLocaleString()}` : '—'}</span></li>
+        <li><span>Value coverage</span><span>${ov.valueCoverage.known}/${ov.totalGames}</span></li>
+      </div>
+    </div>
+  `;
+}
+
+function renderConfidence(ov) {
+  const total = ov.totalEntitlements;
+  return `
+    <div class="widget">
+      <div class="widget-title">Confidence distribution</div>
+      <div class="data-list">
+        <li><span>High</span><span><span class="badge badge-success">${ov.confidence.high}</span></span></li>
+        <li><span>Medium</span><span><span class="badge badge-caution">${ov.confidence.medium}</span></span></li>
+        <li><span>Low</span><span><span class="badge badge-danger">${ov.confidence.low}</span></span></li>
+      </div>
+    </div>
+  `;
+}
+
+function renderHealth(health) {
+  const pct = health.metadataCompletenessPercent.toFixed(0);
+  return `
+    <div class="widget">
+      <div class="widget-title">Collection health</div>
+      <div class="health-score-wrap">
+        <div class="health-ring" style="--health-pct:${pct}%">
+          <div class="health-ring-inner">
+            <div class="health-ring-value">${pct}%</div>
+            <div class="health-ring-label">Complete</div>
           </div>
-          <span class="bar-value">${d.count}</span>
-        </li>
-      `).join('')}
-    </ul>
+        </div>
+        <div class="health-stats">
+          <div class="health-stat"><span class="health-stat-label">Developer</span><span class="health-stat-value">${health.fieldCoverage.developer}/${health.fieldCoverage.total}</span></div>
+          <div class="health-stat"><span class="health-stat-label">Publisher</span><span class="health-stat-value">${health.fieldCoverage.publisher}/${health.fieldCoverage.total}</span></div>
+          <div class="health-stat"><span class="health-stat-label">Release date</span><span class="health-stat-value">${health.fieldCoverage.releaseDate}/${health.fieldCoverage.total}</span></div>
+          <div class="health-stat"><span class="health-stat-label">Any rating</span><span class="health-stat-value">${health.fieldCoverage.anyRating}/${health.fieldCoverage.total}</span></div>
+        </div>
+      </div>
+    </div>
   `;
 }
 
-function renderTimelineData(distribution) {
+function renderAcquisitions(timeline) {
+  const months = timeline.byMonth.slice(-12);
+  if (!months.length) return `<div class="widget"><div class="widget-title">Acquisitions</div><p class="text-muted" style="font-size:13px">No dated acquisitions.</p></div>`;
+
+  const max = Math.max(...months.map(m => m.count));
+  const bars = months.map(m => {
+    const h = (m.count / max * 100).toFixed(0);
+    const label = m.label.slice(2); // strip "20"
+    return `<div class="timeline-bar-wrap">
+      <div class="timeline-bar" style="height:${h}%"></div>
+      <span class="timeline-year">${label}</span>
+    </div>`;
+  }).join('');
+
   return `
-    <ul class="data-list">
-      ${distribution.map(d => `
-        <li>
-          <span>${d.label}</span>
-          <span class="text-secondary">${d.count}</span>
-        </li>
-      `).join('')}
-    </ul>
+    <div class="widget">
+      <div class="widget-title">Acquisitions — last 12 months</div>
+      <div class="timeline-chart">${bars}</div>
+      ${timeline.firstAcquisition ? `<div class="text-muted" style="font-size:11px;margin-top:8px">First: ${timeline.firstAcquisition} · Last: ${timeline.lastAcquisition}</div>` : ''}
+    </div>
   `;
-}
-
-function formatCurrency(value, currency) {
-  if (value == null) return 'N/A';
-  const symbol = currency === 'INR' ? '₹' : (currency === 'USD' ? '$' : currency);
-  return `${symbol}${Math.round(value).toLocaleString()}`;
-}
-
-function formatRating(value) {
-  return value != null ? Math.round(value) : 'N/A';
 }
