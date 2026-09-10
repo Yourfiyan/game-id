@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1920">
+<title>P5 — Page Templates · Game ID Design System</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+
+  :root {
+    --bg-canvas: #141414;
+    --bg-layer: #1f1f1f;
+    --bg-subtle: #292929;
+    --bg-hover: #2a2a2a;
+    --bg-selected: #333333;
+    --bg-disabled: #242424;
+    --fg-primary: #ffffff;
+    --fg-secondary: #d6d6d6;
+    --fg-tertiary: #adadad;
+    --fg-quaternary: #949494;
+    --fg-disabled: #5c5c5c;
+    --brand-rest: #115ea3;
+    --brand-hover: #0f6cbd;
+    --brand-pressed: #0f548c;
+    --stroke-divider: rgba(255,255,255,0.06);
+    --stroke-subtle: rgba(255,255,255,0.08);
+    --stroke-default: #424242;
+    --stroke-strong: #666666;
+    --r-sm: 2px; --r-md: 4px; --r-lg: 6px; --r-xl: 8px; --r-circular: 9999px;
+    --success: #5ec75e; --caution: #f2c661; --danger: #e37d80;
+    --success-bg: #052505; --danger-bg: #3b0509;
+    --page-max: 1560px; --page-gutter: 32px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 14px; line-height: 1.5;
+    color: var(--fg-primary);
+    background: var(--bg-canvas);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    max-width: var(--page-max);
+    margin: 0 auto;
+    padding: 48px var(--page-gutter) 96px;
+  }
+
+  /* ---- Header ---- */
+  .page-header { margin-bottom: 48px; }
+  .page-title {
+    font-size: 24px; font-weight: 600; color: var(--fg-primary);
+    letter-spacing: -0.3px; margin-bottom: 8px;
+  }
+  .page-desc {
+    font-size: 14px; color: var(--fg-secondary);
+    max-width: 900px; line-height: 1.6;
+  }
+
+  /* ---- Sections ---- */
+  .section { margin-bottom: 32px; }
+  .section-head { margin-bottom: 12px; }
+  .section-title {
+    font-size: 20px; font-weight: 600; color: var(--fg-primary);
+    letter-spacing: -0.3px; margin-bottom: 4px;
+  }
+  .section-desc {
+    font-size: 13px; color: var(--fg-tertiary);
+    max-width: 900px; line-height: 1.5;
+  }
+
+  .rules-frame {
+    background: var(--bg-subtle);
+    border-radius: var(--r-lg);
+    padding: 24px;
+  }
+
+  .rule-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+  }
+
+  .rule-col-header {
+    font-size: 12px; font-weight: 600;
+    margin-bottom: 8px; padding-bottom: 0;
+  }
+  .rule-col-header.always { color: var(--success); }
+  .rule-col-header.never  { color: var(--danger); }
+
+  .rule-list { list-style: none; }
+  .rule-item {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 3px 0; font-size: 12px; color: var(--fg-secondary);
+    line-height: 1.5;
+  }
+
+  .bullet {
+    width: 6px; height: 20px; border-radius: 3px;
+    flex-shrink: 0; margin-top: 0;
+  }
+  .bullet.always { background: var(--brand-rest); }
+  .bullet.never  { background: var(--danger); }
+
+  /* ---- In-use ---- */
+  .in-use {
+    background: var(--bg-subtle);
+    border-radius: var(--r-lg);
+    padding: 12px 18px;
+    margin-top: 16px;
+  }
+  .in-use-label {
+    font-size: 11px; font-weight: 600;
+    color: var(--fg-quaternary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 4px;
+  }
+  .in-use-ref {
+    font-size: 12px; color: var(--fg-secondary);
+    padding: 2px 0;
+  }
+  .in-use-ref::before {
+    content: '→ ';
+    color: var(--fg-quaternary);
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== HEADER ===== -->
+  <div class="page-header">
+    <h1 class="page-title">Page Templates</h1>
+    <p class="page-desc">Six layout archetypes, their rules, and the shipped screens that use them. Every page in Game ID is one of these six — never a bespoke arrangement.</p>
+  </div>
+
+  <!-- ===== SECTION: App Shell ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">App shell</h2>
+      <p class="section-desc">Sidebar, top bar, content column and footer. The structural base every other template composes on.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>One active nav item per view</li>
+            <li class="rule-item"><span class="bullet always"></span>Top bar sync state reflects actual connection status</li>
+            <li class="rule-item"><span class="bullet always"></span>Footer appears only when content exceeds viewport height</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Show more than five nav items at once</li>
+            <li class="rule-item"><span class="bullet never"></span>Collapse sidebar on wide viewports without user action</li>
+            <li class="rule-item"><span class="bullet never"></span>Overlay the sidebar on top of content on desktop</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Library — Grid ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Library — Grid</h2>
+      <p class="section-desc">Grid of game cards with sidebar and top bar. The primary browse view.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Card grid reflows at 1440 minimum width</li>
+            <li class="rule-item"><span class="bullet always"></span>Filters persist across navigation changes</li>
+            <li class="rule-item"><span class="bullet always"></span>Pagination visible when results span multiple pages</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Mix card and row layouts on the same page</li>
+            <li class="rule-item"><span class="bullet never"></span>Show more than 8 page buttons at once</li>
+            <li class="rule-item"><span class="bullet never"></span>Display a pager when fewer than 50 results exist</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Library (Grid) — 10:9</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Analytics ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Analytics</h2>
+      <p class="section-desc">Chart panels and metric cards with sidebar. The data analysis view.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Metric cards align to a single row</li>
+            <li class="rule-item"><span class="bullet always"></span>Chart panels display measured corpus data</li>
+            <li class="rule-item"><span class="bullet always"></span>Distribution bar segments sum to 100%</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Fabricate figures in a metric card</li>
+            <li class="rule-item"><span class="bullet never"></span>Show a percentage without its raw count</li>
+            <li class="rule-item"><span class="bullet never"></span>Render a trend line on fewer than 3 data points</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Analytics — 10:13</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Detail ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Detail</h2>
+      <p class="section-desc">Single game view with game card, row list and action bar. The inspection view.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Hero card displays the primary title and confidence</li>
+            <li class="rule-item"><span class="bullet always"></span>Action buttons are primary and secondary only</li>
+            <li class="rule-item"><span class="bullet always"></span>Row list uses the compact row variant</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Show both hero card and list for the same game</li>
+            <li class="rule-item"><span class="bullet never"></span>Place action buttons between title and metadata</li>
+            <li class="rule-item"><span class="bullet never"></span>Use the grid card variant in a detail view</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Game Detail — 10:16</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Collections ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Collections</h2>
+      <p class="section-desc">Named lists of games with sort and filter. The curated view.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Collection name is the primary heading</li>
+            <li class="rule-item"><span class="bullet always"></span>Sort state visible on every column header</li>
+            <li class="rule-item"><span class="bullet always"></span>Empty state shown when no games match filter</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Allow duplicate game entries across collections</li>
+            <li class="rule-item"><span class="bullet never"></span>Hide the filter bar on wide viewports</li>
+            <li class="rule-item"><span class="bullet never"></span>Reorder games by drag without a visible handle</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Collections — 10:18</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Settings ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Settings</h2>
+      <p class="section-desc">Account connections and preferences. The configuration view.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Account connection status visible at a glance</li>
+            <li class="rule-item"><span class="bullet always"></span>Store disconnection requires explicit confirmation</li>
+            <li class="rule-item"><span class="bullet always"></span>Preference changes apply immediately with undo option</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Store connection status inferred from game count</li>
+            <li class="rule-item"><span class="bullet never"></span>Allow account deletion without confirmation step</li>
+            <li class="rule-item"><span class="bullet never"></span>Display API tokens or credentials in plain text</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Settings — 10:23</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: List (NEW) ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">List</h2>
+      <p class="section-desc">Row-based game list with metadata columns and sort. The search result view.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Rows display title, store, classification, confidence, and enrichment status</li>
+            <li class="rule-item"><span class="bullet always"></span>Sort visible on every clickable column header</li>
+            <li class="rule-item"><span class="bullet always"></span>Row hover highlights the full row, not just the cell</li>
+            <li class="rule-item"><span class="bullet always"></span>Confidence pip present on every row with provenance data</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Render more than 8 columns on the default viewport</li>
+            <li class="rule-item"><span class="bullet never"></span>Sort on a field absent from &gt;5% of rows (e.g. playtime)</li>
+            <li class="rule-item"><span class="bullet never"></span>Truncate the title column — it must be the widest</li>
+            <li class="rule-item"><span class="bullet never"></span>Use the grid card variant inside a list view</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Search — 10:20</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Band (NEW) ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Band</h2>
+      <p class="section-desc">Horizontal summary cards in a single scrollable row. The store and account views.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Each band card is self-contained with heading, metric, and action</li>
+            <li class="rule-item"><span class="bullet always"></span>Cards share a single horizontal scroll container, not a grid</li>
+            <li class="rule-item"><span class="bullet always"></span>Action buttons appear within the card, not in a separate toolbar</li>
+            <li class="rule-item"><span class="bullet always"></span>Empty band cards still render with placeholder content</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Stack band cards vertically on any viewport width</li>
+            <li class="rule-item"><span class="bullet never"></span>Mix band and grid layouts on the same page</li>
+            <li class="rule-item"><span class="bullet never"></span>Hide the scroll affordance when the row is not overflowing</li>
+            <li class="rule-item"><span class="bullet never"></span>Use band cards as a substitute for metric cards in Analytics</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Stores — 10:21</div>
+        <div class="in-use-ref">Accounts — 10:22</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Table (NEW) ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Table</h2>
+      <p class="section-desc">Sortable data rows with fixed header, column alignment, and hover states. Used in analytics and detail panels.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Header row is visually distinct from data rows</li>
+            <li class="rule-item"><span class="bullet always"></span>Sort indicator appears on the active column only</li>
+            <li class="rule-item"><span class="bullet always"></span>Numeric columns right-align their content</li>
+            <li class="rule-item"><span class="bullet always"></span>Row hover covers the full width, including empty cells</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Allow horizontal scroll on the default 1440 viewport</li>
+            <li class="rule-item"><span class="bullet never"></span>Sort on columns with no header label</li>
+            <li class="rule-item"><span class="bullet never"></span>Render more than 6 visible columns at once</li>
+            <li class="rule-item"><span class="bullet never"></span>Stripe every other row without a toggle in Settings</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Analytics — 10:13 (breakdown table)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Details (NEW) ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Details</h2>
+      <p class="section-desc">Two-column key-value pairs with dividers. The metadata panel in game detail and settings.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Label column is right-aligned, value column left-aligned</li>
+            <li class="rule-item"><span class="bullet always"></span>Dividers separate each row, not each pair</li>
+            <li class="rule-item"><span class="bullet always"></span>Long values truncate with ellipsis, not wrap</li>
+            <li class="rule-item"><span class="bullet always"></span>Section header appears above each logical group</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Use for more than 8 rows without a scroll container</li>
+            <li class="rule-item"><span class="bullet never"></span>Align labels and values to the same edge</li>
+            <li class="rule-item"><span class="bullet never"></span>Nest details inside another details panel</li>
+            <li class="rule-item"><span class="bullet never"></span>Show a divider after the last row</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Game Detail — 10:16 (metadata panel)</div>
+        <div class="in-use-ref">Settings — 10:23 (account info)</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION: Empty States (NEW) ===== -->
+  <div class="section">
+    <div class="section-head">
+      <h2 class="section-title">Empty states</h2>
+      <p class="section-desc">Centered illustration, headline, and action for zero-result scenarios. The fallback when no data exists.</p>
+    </div>
+    <div class="rules-frame">
+      <div class="rule-cols">
+        <div>
+          <div class="rule-col-header always">Always</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet always"></span>Headline states what is missing, not that "something went wrong"</li>
+            <li class="rule-item"><span class="bullet always"></span>Primary action is the path out of the empty state</li>
+            <li class="rule-item"><span class="bullet always"></span>Illustration is brand-coloured, never full colour</li>
+            <li class="rule-item"><span class="bullet always"></span>Layout is centered vertically and horizontally in the content area</li>
+          </ul>
+        </div>
+        <div>
+          <div class="rule-col-header never">Never</div>
+          <ul class="rule-list">
+            <li class="rule-item"><span class="bullet never"></span>Show a different empty state for every sub-filter</li>
+            <li class="rule-item"><span class="bullet never"></span>Render an empty state inside a card — it must fill the content column</li>
+            <li class="rule-item"><span class="bullet never"></span>Use the error illustration variant for a non-error condition</li>
+            <li class="rule-item"><span class="bullet never"></span>Place the action button below the fold on 1440</li>
+          </ul>
+        </div>
+      </div>
+      <div class="in-use">
+        <div class="in-use-label">In use</div>
+        <div class="in-use-ref">Library — 10:9 (no results after filter)</div>
+        <div class="in-use-ref">Collections — 10:18 (empty collection)</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

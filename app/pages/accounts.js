@@ -2,7 +2,7 @@
    Game ID — Accounts Page
    ========================================================================== */
 
-import { getGames, getCurrentAccount } from '../services/loader.js';
+import { getGames, getCurrentAccount, loadAccount } from '../services/loader.js';
 import { overview, completionAnalysis, storeDistribution, acquisitionTimeline } from '../services/analytics.js';
 
 function formatPrice(val) {
@@ -14,6 +14,11 @@ function formatPrice(val) {
 export async function renderAccounts() {
   const content = document.getElementById('content');
   const accounts = ['A', 'B'];
+
+  // Load both accounts
+  for (const id of accounts) {
+    await loadAccount(id);
+  }
 
   const acctSummary = accounts.map(id => {
     const games = getGames(id);
@@ -30,6 +35,13 @@ export async function renderAccounts() {
 
   const gamesB = getGames('B');
 
+  // Synced profile from export
+  const savedProfile = localStorage.getItem('gameid-synced-profile');
+  let syncedProf = null;
+  if (savedProfile) {
+    try { syncedProf = JSON.parse(savedProfile); } catch (e) {}
+  }
+
   content.innerHTML = `
     <div class="page accounts-page">
       <div class="page-header">
@@ -40,6 +52,8 @@ export async function renderAccounts() {
       <div class="account-cards">
         ${acctSummary.map(a => renderCard(a)).join('')}
       </div>
+
+      ${syncedProf ? renderSyncedProfile(syncedProf) : ''}
 
       ${renderShared(shared)}
       ${renderFooter()}
@@ -96,6 +110,42 @@ function renderCard({ id, games, ov, comp, priceSym, val }) {
         <li><span>Priced titles</span><span>${ov.msrp.coverage.known}</span></li>
         ${ov.topGenre ? `<li><span>Top genre</span><span>${ov.topGenre.label}</span></li>` : ''}
       </ul>
+    </div>
+  `;
+}
+
+function renderSyncedProfile(p) {
+  const connected = p.connectedAccounts || [];
+  const authIcons = { github: '🐙', google: '🔍', ubisoft: '🎯', steam: '🎮', xbox: '🟢', playstation: '🔵' };
+
+  return `
+    <div class="widget" style="margin-top:24px">
+      <div class="widget-title" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Verified Account Profile <span class="badge badge-brand">${esc(p.displayName || 'Epic Account')}</span></span>
+        <span class="badge" style="background:rgba(94,199,94,0.1);color:var(--status-success-fg);border:1px solid var(--status-success-fg);font-size:11px">Export Verified</span>
+      </div>
+
+      <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(280px, 1fr));gap:16px;margin-top:14px">
+        <div style="background:var(--bg-canvas);border:1px solid var(--stroke-subtle);border-radius:var(--r-md);padding:14px">
+          <div style="font-size:11px;color:var(--fg-quaternary);text-transform:uppercase;margin-bottom:6px">Account Identity</div>
+          <div style="font-size:14px;font-weight:600;color:var(--fg-primary)">${esc(p.displayName)} ${p.fullName ? `(${esc(p.fullName)})` : ''}</div>
+          <div style="font-size:12px;color:var(--fg-secondary);margin-top:2px">${esc(p.email || '—')} · ${esc(p.country || '—')}</div>
+          <div style="font-size:11px;color:var(--fg-tertiary);margin-top:4px">Account ID: <code style="font-family:var(--font-mono);font-size:10px">${esc(p.id)}</code></div>
+        </div>
+
+        <div style="background:var(--bg-canvas);border:1px solid var(--stroke-subtle);border-radius:var(--r-md);padding:14px">
+          <div style="font-size:11px;color:var(--fg-quaternary);text-transform:uppercase;margin-bottom:6px">Connected Accounts (${connected.length})</div>
+          <div style="display:flex;flex-wrap:wrap;gap:8px">
+            ${connected.map(c => `
+              <div style="display:flex;align-items:center;gap:6px;background:var(--bg-chip);padding:4px 8px;border-radius:var(--r-sm);font-size:12px">
+                <span>${authIcons[c.authType.toLowerCase()] || '🔗'}</span>
+                <span style="font-weight:600;color:var(--fg-primary);text-transform:capitalize">${esc(c.authType)}:</span>
+                <span style="color:var(--fg-secondary)">${esc(c.externalDisplayName || c.externalAuthId)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      </div>
     </div>
   `;
 }

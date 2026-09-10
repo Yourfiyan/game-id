@@ -12,6 +12,7 @@ import { renderStores } from './pages/stores.js';
 import { renderCollections } from './pages/collections.js';
 import { renderSearch } from './pages/search.js';
 import { renderSettings } from './pages/settings.js';
+import { openSyncModal } from './components/sync-modal.js';
 
 const routes = {
   home: renderHome,
@@ -108,7 +109,7 @@ document.addEventListener('keydown', e => {
   }
 });
 
-// Account switcher
+// Account switcher & Topbar buttons
 document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('.account-btn').forEach(btn => {
     btn.addEventListener('click', async () => {
@@ -121,4 +122,25 @@ document.addEventListener('DOMContentLoaded', () => {
       await navigate(route);
     });
   });
+
+  // Sync now button in topbar
+  const syncBtn = document.querySelector('.sync-btn');
+  if (syncBtn) {
+    syncBtn.addEventListener('click', () => {
+      openSyncModal();
+    });
+  }
+
+  // Restore synced profile display if available
+  const savedProfile = localStorage.getItem('gameid-synced-profile');
+  if (savedProfile) {
+    try {
+      const prof = JSON.parse(savedProfile);
+      const avatarEl = document.querySelector('.user-avatar');
+      if (avatarEl && prof.displayName) {
+        avatarEl.textContent = prof.displayName.slice(0, 2).toUpperCase();
+        avatarEl.title = `${prof.displayName} (${prof.email || ''})`;
+      }
+    } catch (e) {}
+  }
 });
