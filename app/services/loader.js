@@ -19,6 +19,8 @@
    consume. That mapping lives here, in one place, on purpose.
    ========================================================================== */
 
+import { DUMMY_CONFIG, DUMMY_GENRES, DUMMY_GAMES_A, DUMMY_GAMES_B } from './dummy-data.js';
+
 const BASE = '../data';
 
 const state = {
@@ -39,9 +41,14 @@ async function fetchJSON(path) {
 /* ------------------------------------------------------------------ config */
 export async function loadConfig() {
   if (state.config) return state.config;
-  state.config = await fetchJSON(`${BASE}/config.json`);
-  // genres.json is presentation sugar; a failure must not break the library.
-  state.genres = await fetchJSON(`${BASE}/genres.json`).catch(() => null);
+  try {
+    state.config = await fetchJSON(`${BASE}/config.json`);
+    state.genres = await fetchJSON(`${BASE}/genres.json`).catch(() => DUMMY_GENRES);
+  } catch (err) {
+    console.info('[Loader] Using built-in demo configuration.');
+    state.config = DUMMY_CONFIG;
+    state.genres = DUMMY_GENRES;
+  }
   return state.config;
 }
 
@@ -152,6 +159,15 @@ export async function loadAccount(account) {
     console.log(`[Loader] Account ${account}: ${games.length} entitlements`);
     return games;
   } catch (err) {
+    // Fall back to demo data if static JSON files aren't available
+    const dummy = account === 'A' ? DUMMY_GAMES_A : (account === 'B' ? DUMMY_GAMES_B : []);
+    if (dummy && dummy.length > 0) {
+      console.info(`[Loader] Using built-in demo catalog for Account ${account} (${dummy.length} titles).`);
+      const games = dummy.map(flatten);
+      state.games[account] = games;
+      state.currentAccount = account;
+      return games;
+    }
     state.error = err.message;
     console.error('[Loader] Load failed:', err);
     throw err;

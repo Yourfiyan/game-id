@@ -50,6 +50,20 @@ export const DUMMY_CONFIG = {
   }
 };
 
+export const DUMMY_GENRES = {
+  source: "Steam store genres (Demo mode)",
+  genres: [
+    { name: "Action", slug: "action", counts: { A: 10, B: 20 } },
+    { name: "Adventure", slug: "adventure", counts: { A: 8, B: 15 } },
+    { name: "Indie", slug: "indie", counts: { A: 7, B: 14 } },
+    { name: "RPG", slug: "rpg", counts: { A: 5, B: 12 } },
+    { name: "Strategy", slug: "strategy", counts: { A: 4, B: 9 } },
+    { name: "Casual", slug: "casual", counts: { A: 3, B: 8 } },
+    { name: "Simulation", slug: "simulation", counts: { A: 3, B: 7 } },
+    { name: "Free To Play", slug: "free_to_play", counts: { A: 2, B: 6 } }
+  ]
+};
+
 export const DUMMY_PROFILE = {
   id: "epic_demo_8a7d3f2e1c0b",
   label: "Demo Gamer (Demo Account)",

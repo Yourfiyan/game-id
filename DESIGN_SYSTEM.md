@@ -13,21 +13,16 @@ be passed in `skillNames` on every `use_figma` call** (`"figma-use,figma-generat
 
 ### The document set — read `HANDOFF.md` first
 
-This file is one of six. It is auto-loaded, which is why the pointer lives here, but it is **not**
-the entry point. Authority order, highest first:
+This file is one of the project reference documents. Authority order:
 
 | # | File | Owns |
 |---|---|---|
-| 0 | **the Figma file** | everything. If a document and the file disagree, the file wins. |
-| 1 | `CLAUDE.md` (this file) | constraints, token values, node ids, the page map, API knowledge, closeout records |
-| 2 | `HANDOFF.md` | **the zero-context entry point** — current state and the exact next steps |
-| 3 | `TODO.md` | the ranked backlog and every open defect, with node ids |
-| 4 | `WORKFLOW_CONTEXT.md` | design rationale, derivations, build conventions, quirk tables |
-| 5 | `CHANGELOG.md` | the dated session-by-session record |
-|   | `DATA_PIPELINE.md` | the `tools/` chain, the `data/` tree, and every measured corpus figure |
-
-`WORKFLOW_CONTEXT.md` deliberately holds **no counts, ids or state** — it went four days stale
-because it and this file both owned mutable state. Anything countable belongs here.
+| 0 | **the Figma file** | Design system file (`00QEeirxnqT4Zg829aeDVZ`) |
+| 1 | `DESIGN_SYSTEM.md` (this file) | Constraints, token values, node IDs, the page map, API knowledge, closeout records |
+| 2 | `HANDOFF.md` | Orientation, environment notes, architectural conventions |
+| 3 | `README.md` | Primary repository landing page, architecture overview, visual guides, and usage |
+| 4 | `DATA_PIPELINE.md` | The `tools/` and client extractor chains, the `data/` tree, and every measured corpus figure |
+| 5 | `CHANGELOG.md` | The dated session-by-session build record |
 
 ## Governing constraints
 
@@ -1416,13 +1411,13 @@ it was honoured: nothing was mutated blind and no defect was closed on a structu
 For part of that day no `use_figma`, `get_screenshot`, `get_metadata` or `ToolSearch` existed in the
 session's tool list, so there was genuinely nothing to retry: an absent tool cannot fail when called,
 and loading the `figma-use` skill does not surface a deferred one. **The cause was session binding, not
-connectivity** — `claude mcp list` reported `plugin:figma:figma: https://mcp.figma.com/mcp (HTTP)`
+connectivity** — `mcp list` reported `plugin:figma:figma: https://mcp.figma.com/mcp (HTTP)`
 **✔ Connected**, bundle `figma_prod@2_2_96`, throughout. Tools are enumerated once at launch, so **the
 fix is to start a fresh session**; that is what cleared it, and three read-only scripts then returned
 data.
 
 **Four "confirmations" recorded during that outage answered the wrong question, and this is the part
-worth keeping.** `C:\Users\Sufiyan\.claude.json` reading `mcpServers: []` proves nothing when the scope
+worth keeping.** `project configuration` reading `mcpServers: []` proves nothing when the scope
 is *dynamic config from the command line*. The absent Figma process, the dead localhost ports and
 `curl … → 000` are all irrelevant to a **remote HTTPS** endpoint at `mcp.figma.com`. And "a browser tab
 gives the session nothing" is false when the server is hosted. **Non-vacuous zeros to the wrong question
@@ -1996,7 +1991,7 @@ list pages, then walk the target page collecting `type`, `name`, `id`, size, lay
 variables, and return a compact summary.
 
 **And it has now happened to a session summary, not just to this file.** A compaction note carried
-into 2026-08-22 asserted that CLAUDE.md was "still entirely unedited". A grep before writing showed
+into 2026-08-22 asserted that DESIGN_SYSTEM.md was "still entirely unedited". A grep before writing showed
 it already held the B2 decision and the whole defect sweep. Writing from the note would have
 overwritten landed work — the same shape as the two false "empty page" markers, applied to my own
 record of what I had done. **Grep the document before editing it, exactly as you read the page before

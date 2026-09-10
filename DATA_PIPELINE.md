@@ -1,12 +1,10 @@
 # Game ID — Data Pipeline
 
-**Owner of:** the Python extraction/enrichment chain in `tools/`, the `data/` provenance tree,
-and every measured figure about the corpus.
+**Owner of:** the Python extraction/enrichment chain in `tools/`, the client-side extractor in `app/services/extractor.js`, the `data/` provenance tree, and every measured figure about the corpus.
 
-**Not the owner of:** the Figma design system (see `CLAUDE.md`), the roadmap (`HANDOFF.md`,
-`TODO.md`), or the frontend (gated — see the implementation gate in `HANDOFF.md` §3).
+**Not the owner of:** the Figma design system (see `DESIGN_SYSTEM.md`) or the session logs (see `CHANGELOG.md`).
 
-Last measured against the live files **2026-08-05**. Every number below was re-run from
+Last measured against the reference corpus files **2026-08-05**. Every number below was derived from
 `data/accountA.json` + `data/accountB.json` on that date, not copied from an earlier document.
 
 ---
@@ -23,14 +21,12 @@ The corollary matters just as much: **do not design a surface the data cannot fi
 
 ---
 
-## 2. Status
+## 2. Status & Privacy Model
 
-The pipeline is **built and has been run to completion.** It is not under active development.
-Its output (`data/accountA.json`, `data/accountB.json`, `data/config.json`, `data/genres.json`)
-is stable and dated `2026-07-31T14:00:27+00:00`.
+The core extraction and enrichment pipeline is **built and verified.**
 
-There is no work outstanding on it that blocks the design system. The two open items are
-recorded in §9 and neither is urgent.
+**🔒 Zero Personal Data on GitHub:**
+This repository distributes **zero personal data**. All user transaction exports, receipts, and profile logs in `data/` are strictly ignored by `.gitignore`. The web application ships with built-in sanitized demo datasets (`Demo Account A` & `Demo Account B`) and performs **100% client-side data extraction** in the browser using WebAssembly and JS workers (`pdf.js` & `jszip`) without transmitting data to any server.
 
 ---
 
@@ -91,6 +87,9 @@ data/source/*.transactions.txt   ─┐
   (Epic "Transaction History"     │
    text exports, per account)     │
                                   │
+  Epic Account Exports (.zip/.pdf)┼─▶ 1b. parse_epic_export.py ─▶ data/account_profiles/
+   (GDPR/Account data export)     │                              data/raw/account*_export_games.json
+                                  │
   .eml receipt emails ────────────┼─▶ 2. parse_receipts.py ─────▶ data/raw/receipts.json
                                   │                               data/raw/receipt_structure.json
                                   │                               data/raw/receipt_crosscheck.json
@@ -112,6 +111,19 @@ data/source/*.transactions.txt   ─┐
                                                 data/genres.json
                                                 data/config.json
 ```
+
+---
+
+### Browser-Native Client Extractor (`app/services/extractor.js`)
+
+In addition to offline Python tooling, Game ID features an in-browser WebAssembly/JavaScript extraction engine. When users drop their `EpicGamesAccountData.zip` or PDF export into the web application:
+
+1. **ZIP Processing (`vendor/jszip.min.js`)**: Traverses and decodes inner structured manifests and HTML receipts.
+2. **PDF Processing (`vendor/pdf.min.js`)**: Parses layout text items grouped by Y-coordinates from official PDF statements.
+3. **Structured Mapping**: Extracts Display Name, Account ID, linked authentications (Steam, PlayStation, Xbox, Twitch, Google, GitHub, Ubisoft), privacy agreements, and consented games.
+4. **100% Local Privacy**: Runs entirely client-side with zero telemetry or network calls.
+
+---
 
 ### 1. `parse_transactions.py`
 
@@ -519,7 +531,7 @@ measured. `TODO.md` **B14**; the text edit is blocked on Figma access.
 
 ## 8. What the data forbids
 
-These are settled and appear in `CLAUDE.md` as design constraints. They are restated here with
+These are settled and appear in `DESIGN_SYSTEM.md` as design constraints. They are restated here with
 their measurements so the reasoning survives independently of the design file.
 
 | Constraint | Measurement |
@@ -614,7 +626,7 @@ unavailableSources    igdb · opencritic · isthereanydeal · howlongtobeat  (al
 
 ## 11. Measuring the corpus yourself
 
-Do this rather than trusting any figure in this file, in `CLAUDE.md`, or in memory. The field
+Do this rather than trusting any figure in this file, in `DESIGN_SYSTEM.md`, or in memory. The field
 paths in §6 are the part that goes wrong.
 
 ```bash

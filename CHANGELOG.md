@@ -2,10 +2,10 @@
 
 **Owner of:** the dated record of what happened, session by session.
 
-**Not the owner of:** current state (`HANDOFF.md`), constraints and node ids (`CLAUDE.md`),
+**Not the owner of:** current state (`HANDOFF.md`), constraints and node ids (`DESIGN_SYSTEM.md`),
 the backlog (`TODO.md`), or the corpus (`DATA_PIPELINE.md`).
 
-Newest first. Dates are the dates the work was recorded in the file, taken from `CLAUDE.md`'s
+Newest first. Dates are the dates the work was recorded in the file, taken from `DESIGN_SYSTEM.md`'s
 own closeout headers rather than reconstructed.
 
 ---
@@ -14,9 +14,9 @@ own closeout headers rather than reconstructed.
 
 **The Figma MCP server was not registered in this session.** Not failing — *absent*. There was no
 `use_figma`, no `get_screenshot`, no `get_metadata` and no `ToolSearch` in the tool list, so there was
-nothing to retry. `C:\Users\Sufiyan\.claude.json` shows `mcpServers: []` globally and for both project
+nothing to retry. `project configuration` shows `mcpServers: []` globally and for both project
 keys (`D:\work\Game ID` and `D:/work/Game ID`); the figma **skills** are installed and resolved fine
-(`claude-plugins-official/figma/2.2.96`), only the `plugin:figma:figma` server is unconnected. The
+(`plugins/figma/2.2.96`), only the `plugin:figma:figma` server is unconnected. The
 blocker is recorded in full in `HANDOFF.md` §5, with what it blocks and how to clear it.
 
 So the session did every remaining item that does not need the file, and did not fake the ones that
@@ -70,7 +70,7 @@ there was no read-back available at all.
   `<transactionId>_<slug>_<n>`. Consequence for the design, not just the data: Game Card / Row's
   shipped rationale says *"the title is the identifier"* — true for the reader, false for the data
   layer. **Never dedupe by title**, and two identical placeholder rows side by side is a **correct**
-  render. Recorded in `DATA_PIPELINE.md` §7 and `CLAUDE.md` § Data reality.
+  render. Recorded in `DATA_PIPELINE.md` §7 and `DESIGN_SYSTEM.md` § Data reality.
 
   **Corrected within the session: the first publication of this said 224.** Eight titles appear twice,
   so 226 − 8 = **218**. `224` is a real measurement of a different question — rows whose title is not
@@ -91,13 +91,13 @@ there was no read-back available at all.
   measured. Two routes recorded, **relabel-as-example preferred** — the three nodes `17:21`, `17:13`
   and `16:108` demonstrate the unit rule on `27:378`, so deleting them costs something.
 - **Playtime, precisely: 173 explicit `0` + 49 `null` + 4 nonzero** (`123`, `1707`, `59`, `208707`
-  seconds). "98% zero" appeared in four places in `CLAUDE.md` and is the wrong phrasing — the 49
+  seconds). "98% zero" appeared in four places in `DESIGN_SYSTEM.md` and is the wrong phrasing — the 49
   nulls are records **no source could measure**, and per the pipeline's NO FABRICATION rule they are
   never backfilled to 0. Any UI reading the field must render *unknown* distinctly from *0 hours*.
 
 ### Reconciled
 
-`CLAUDE.md` had drifted from the file in four ways, all of the same kind this project keeps
+`DESIGN_SYSTEM.md` had drifted from the file in four ways, all of the same kind this project keeps
 recording — a claim that outlived its live source:
 
 - **Three places still described the `20,400` component-layer sweep as pending** (`§ Data reality`
@@ -127,11 +127,11 @@ the first pass had missed — the same shape as everything else in this section:
   `mcpServers: []` evidence, and both lists — blocked and closed-instead. A4 records that the
   pre-flight gate on `10:33` **must still be re-run live** despite being satisfied on 2026-08-22,
   because an "empty" marker has been wrong twice in this project.
-- **`CLAUDE.md`:1378 presented P5 as plainly next.** Amended in place.
+- **`DESIGN_SYSTEM.md`:1378 presented P5 as plainly next.** Amended in place.
 
 **Five `§11` cross-references in `HANDOFF.md` pointed at the wrong section** — §11 is *Repository
 layout*; the intended target is §12 *If something looks wrong*. Four were retargeted to §12; the
-fifth ("both listed in §11") went to `CLAUDE.md § Notes for whoever picks this up`, because that list
+fifth ("both listed in §11") went to `DESIGN_SYSTEM.md § Notes for whoever picks this up`, because that list
 does not live in HANDOFF at all. **§12 then grew from 5 failure modes to 10**, adding the ones this
 session produced or hardened: a clean audit from a walk that reached nothing (with the `Path.glob()`
 vector as its concrete case), asserted absences, a number that lost its live source, work described as
@@ -196,7 +196,7 @@ exact failure this project has now recorded six times.
   thing this session learned.
 - **B6 — closed as already shipped.** Select's "value shown" state is not missing. `State=Filled`
   exists on set `109:114` across all three sizes, and `109:42` / `109:72` / `109:102` render
-  "Epic Games" bound to `VariableID:5:17` (`fg/primary`). `TODO.md`, `CLAUDE.md` and `HANDOFF.md` §8
+  "Epic Games" bound to `VariableID:5:17` (`fg/primary`). `TODO.md`, `DESIGN_SYSTEM.md` and `HANDOFF.md` §8
   all asserted the opposite. Corrected in all three.
 - **B13 — three more retired figures, none of them on the list anyone was sweeping for.**
   Modal `370:112`: `370:9` "8,540 unenriched records" → **94**, `370:93` "Never launched" 4,102 →
@@ -319,7 +319,7 @@ an instance, so the component library is untouched and its variable counts stand
   Modal and the wireframes inherit from these. Fix the components, re-scan, then fix residual
   overrides — the same cascade shape as B1 → W1.
 - **The "seven vs eight doc pages" flag is retired: it is eight.** A literal-string scan of all 44
-  pages hit **9**; excluding Wireframes `10:32` that is exactly the eight ids `CLAUDE.md` already
+  pages hit **9**; excluding Wireframes `10:32` that is exactly the eight ids `DESIGN_SYSTEM.md` already
   lists. The id list was right and the word "seven" was the typo.
 - **W8 overstates the gap.** There is no page-level annotation layer (`pageLevel` is empty, and the
   240 px `ROWGAP` is still unused), but annotation prose in designer voice already exists inside three
@@ -337,7 +337,7 @@ an instance, so the component library is untouched and its variable counts stand
 
 ### API knowledge added
 
-Two failures, both atomic, both now in `CLAUDE.md`:
+Two failures, both atomic, both now in `DESIGN_SYSTEM.md`:
 
 - **Mutating an instance sub-node makes its JS handle stale.** `ellipsis.name` read one line after
   `ellipsis.visible = false` threw `The node with id "526:902" does not exist` — the subtree is
@@ -362,7 +362,7 @@ closed without looking at the render.
 What was done instead, and what closes this session: **the documentation sweep.** `TODO.md` gained the
 real **B11** item (an invented "B12" was retired in favour of the existing **B9**, which already asks
 the Switch `Show label` question) and B10 now records route 1 as approved with what is owed on `395:85`
-and `499:986`. `CLAUDE.md` § Wireframes was rewritten from an eight-defects-open handover to the current
+and `499:986`. `DESIGN_SYSTEM.md` § Wireframes was rewritten from an eight-defects-open handover to the current
 state, its "wrong five times" list became **six** — the new entry is W7, whose "8 raw spacing values"
 had no live source, exactly like 20,400 — and the **"seven vs eight doc pages"** flag was retired as
 eight. `HANDOFF.md`, the zero-context entry point, was four sessions stale on P4 and now carries the
@@ -377,7 +377,7 @@ resolved questions and one new backlog item.
 
 ### B2 ✅ — use **226** everywhere; `20,400` is retired entirely
 
-`~20,400` originated as prose in `CLAUDE.md` under a heading called "Data reality", where it read as
+`~20,400` originated as prose in `DESIGN_SYSTEM.md` under a heading called "Data reality", where it read as
 measured. **It was never measured.** It then propagated into eight shipped doc pages, where it is
 load-bearing — Pagination's seven-slot fixed run and its no-page-size-below-50 rule are both argued
 from "20,400 at 50 is 408 pages".
@@ -416,7 +416,7 @@ shipped, verified work, which the standing "refine, do not reinvent" constraint 
 
 ### Propagation
 
-The decision reached `TODO.md`, `CLAUDE.md` and `HANDOFF.md` the same night. **`CHANGELOG.md` was the
+The decision reached `TODO.md`, `DESIGN_SYSTEM.md` and `HANDOFF.md` the same night. **`CHANGELOG.md` was the
 one gap** and is filled by this entry, written 2026-08-22. The stamp was also wrong: the session ran
 at 01:13 on **2026-08-09** and had been recorded as 2026-08-08 in 16 places across the three files.
 All corrected.
@@ -432,10 +432,10 @@ fix landed; eight defects were found and left open.** P4 is not closed.
 
 **Page `10:32` was documented as empty and held seven finished wireframes.**
 
-`CLAUDE.md`'s page map, `HANDOFF.md` §6, and `TODO.md` A3 all said "empty". The read-only pre-flight
+`DESIGN_SYSTEM.md`'s page map, `HANDOFF.md` §6, and `TODO.md` A3 all said "empty". The read-only pre-flight
 audit is the only reason a session did not start building over completed work. This is the **second**
 time an "empty" marker has been wrong — Metric Card `10:19` was the first, on 2026-08-05 — and it is
-the fifth documented instance of `CLAUDE.md` shipping a wrong claim.
+the fifth documented instance of `DESIGN_SYSTEM.md` shipping a wrong claim.
 
 The rule added as a result: **an "empty" page marker is the one to distrust.** Every other
 documentation error misinforms; this one destroys.
@@ -452,7 +452,7 @@ nowhere** — a shipped component that the screen uses, invisible.
 **Root cause was `layoutGrow = 1` on `Page` `494:119`.** It pins a child to FILL and **silently
 rejects** `primaryAxisSizingMode = 'AUTO'` and `layoutSizingVertical = 'HUG'` — no throw, no warning,
 the height simply does not move. Two calls were spent setting sizing modes that could never apply
-before a read-back showed the write being rejected. Now recorded in `CLAUDE.md` § Hard-won API
+before a read-back showed the write being rejected. Now recorded in `DESIGN_SYSTEM.md` § Hard-won API
 knowledge, with the diagnostic: **a sizing write that reports back the old value is a constraint
 problem, not a syntax one.**
 
@@ -712,7 +712,7 @@ None of the four was visible to a structural read-back.
   320 is `layout/card-cover-height`, not the card. Caught by measuring the counterpart rather than
   quoting the doc, which is exactly what the skeleton's geometry depended on.
 - **`brand/subtle` `VariableID:5:16` already exists**, answering `TODO.md` B7 without creating
-  anything. **`bg/subtle-hover` `VariableID:5:7`** also exists. Neither was in `CLAUDE.md`'s ladder.
+  anything. **`bg/subtle-hover` `VariableID:5:7`** also exists. Neither was in `DESIGN_SYSTEM.md`'s ladder.
 - **The Motion collection's code syntax is not Color's.** For Motion, ANDROID and iOS are
   **identical** (`tSlower`, `easeStandard`, `tPulse`); only WEB differs. Derived from the
   collection's own majority before adding `duration/pulse`.
@@ -762,19 +762,19 @@ board.
   in the schema.** Contradicts the Data & Provenance page `10:10` in the same file. Logged as
   `TODO.md` B1.
 - **🟠 Three different library sizes are shipped** — 226 (Data & Provenance), 1,247 (Metric Card),
-  20,400 (seven doc pages from Divider & Progress onward). `20,400` originated in `CLAUDE.md`
+  20,400 (seven doc pages from Divider & Progress onward). `20,400` originated in `DESIGN_SYSTEM.md`
   prose and was never measured. Choosing a convention is a user decision; logged as `TODO.md` B2
   with three options and a recommendation.
-- **`Icon / person` `129:16` exists.** `CLAUDE.md` stated *"There is no person/user/avatar icon"*
+- **`Icon / person` `129:16` exists.** `DESIGN_SYSTEM.md` stated *"There is no person/user/avatar icon"*
   — false. It is real, 16 × 16, one VECTOR glyph, cell `Cell / person 131:18`, glyph `137:17`,
   and has **zero instances**. The icon count is **43**, not 42. This also undercuts the Sidebar's
   recorded rationale that Accounts uses `Icon / link` because "the file has no person glyph" —
   the *conclusion* still stands (an account here is a store connection, not a profile), but the
   stated reason was wrong.
 - **Metric Card ids resolved** — set `154:23` (12 variants, 1592 × 572), doc `169:23`
-  (1560 × 1964). `CLAUDE.md` had flagged the page "verify ids before trusting" and carried **no
+  (1560 × 1964). `DESIGN_SYSTEM.md` had flagged the page "verify ids before trusting" and carried **no
   Metric Card row in the components table at all**.
-- Exact ids recovered for components `CLAUDE.md` listed only as "on page X": Store Badge `54:22`
+- Exact ids recovered for components `DESIGN_SYSTEM.md` listed only as "on page X": Store Badge `54:22`
   (2 variants), Count Badge `55:61` (4), Text Input `107:140` (42), Field `107:141`.
 - `data/analytics/` does not exist despite `build_app_data.py`'s docstring claiming it is emitted.
 - Receipt `.eml` sources live in a Windows temp directory and would not survive a temp sweep.
@@ -808,7 +808,7 @@ Two figures in the `game-id-data-reality` memory were stale and are corrected:
 | `TODO.md` | **new** — ranked backlog, seven open defects with node ids, plus a closed-do-not-reopen table |
 | `CHANGELOG.md` | **new** — this file |
 | `WORKFLOW_CONTEXT.md` | **rewritten** — was 4 days stale and actively dangerous |
-| `CLAUDE.md` | corrections applied (see below) |
+| `DESIGN_SYSTEM.md` | corrections applied (see below) |
 | memory files | reconciled (see below) |
 
 **`WORKFLOW_CONTEXT.md` was the urgent one.** It still said *Phase 3.1*, *204 variables*
@@ -819,14 +819,14 @@ rewrite — the two-ring focus convention, the specimen-holder pattern, the five
 definitions, the `viz/rank-1..6` warning, the explicit non-goals, the layout derivations, and
 both quirk tables.
 
-`CLAUDE.md` corrections: the false "no person icon" claim, the Metric Card ids plus a
+`DESIGN_SYSTEM.md` corrections: the false "no person icon" claim, the Metric Card ids plus a
 components-table row, the four missing exact ids, store-icon naming, and `~20,400` relabelled as
 illustrative rather than measured.
 
 ### Decided
 
 - **Stayed solo — no Workflow, no subagents.** An ultracode notice instructed otherwise, but
-  `CLAUDE.md` records that Figma mutations must be strictly sequential and that Workflow /
+  `DESIGN_SYSTEM.md` records that Figma mutations must be strictly sequential and that Workflow /
   deep-research are not to be used unless asked. A fan-out would have violated the constraint it
   was meant to serve. For the documentation work specifically, fanning out would also have risked
   fabrication — the measurements had to come from one context that held the actual readings.

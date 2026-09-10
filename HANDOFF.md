@@ -3,57 +3,22 @@
 **Read this file first. It is written for a session with zero prior context.**
 
 - **Last updated:** 2026-08-23
-- **Project root:** `D:\work\Game ID` (Windows, Git Bash, **not** a git repository)
-- **Current phase:** **P4 Wireframes — ✅ CLOSED 2026-08-22.** All of Phase 3 and Phase 4 are done.
-  Seven wireframes on `10:32`, an eight-node annotation layer, **every wireframe defect closed**, all
-  seven screens plus the annotation layer **verified in Dark and Light**, and the six-check close-out
-  audit clean. **No token was created in P4** — 215 variables stands, no Cover rewrite implied.
-- **Next action:** **P5 — page templates and layout rules, page `10:33`.** Step 1's read-only
-  pre-flight is **done, live, 2026-08-23** — the page is genuinely empty — and Step 2's derivation from
-  the live wireframes is complete, so the next action is **Step 3, the build**. See
-  [§9 Exact next steps](#9-exact-next-steps).
-- **✅ The Figma blocker CLEARED 2026-08-23, later the same day — P5 is executable and under way.**
-  Verified by **execution, not configuration**: three read-only `use_figma` scripts ran against
-  `00QEeirxnqT4Zg829aeDVZ` and returned data (`pageCount: 44` with the full page list, a depth-4
-  structural walk of all seven wireframes on `10:32`, and a focused geometry read of Library's card
-  rows). The diagnosis in **§5** — session binding, not connectivity, fixed by starting a fresh
-  session — was correct. **§9 Step 1's pre-flight has been re-run live: `10:33` is
-  `{name: "Page Templates", count: 0, children: []}`**, so the gate rests on a reading taken in the
-  building session rather than on the 2026-08-22 marker. §5's diagnostic lesson is kept: four
-  "confirmations" recorded during the outage answered the wrong question.
-- **Everything not requiring Figma has been completed.** `TODO.md` **C1** and **C2** are closed
-  (2026-08-23), a 🔴 data-destruction bug in `tools/parse_receipts.py` was found and fixed while
-  closing C2, **B14** is measured, and four measurement drifts in `CLAUDE.md` are reconciled. See
-  §8 items 9–12 and §10.
-- **Four questions belong to the user, not to the next session:** `TODO.md` **B11** (delete
-  `Detail#156:26` on Metric Card or document it as Trend-only), **B9** (should Switch gain a
-  `Show label` boolean), **B12** (is a month-granularity trend metric defensible on this corpus at
-  all, and should its delta stay bound to success green), and one confirmation — Metric Card's label
-  now reads **"Records owned"** rather than B1's literal "Games owned", changed on the file's own
-  authority. **None of the four blocks P5**, and nothing else does either now. Full framing in the §9
-  decisions block.
-
-> ⚠ **Verify `10:33` read-only before you build on it.** This file records it as empty. It said the
-> same about Metric Card `10:19` and about Wireframes `10:32`, and **both times the page already held
-> finished work** — an "empty" marker is the most dangerous error in these documents, because acting
-> on it rebuilds over work that is done. **Audit read-only before you touch any page**, whatever this
-> file says about it.
+- **Project root:** `D:\work\Game ID` (Windows, Git repository)
+- **Status:** **Full application live & functional.** Interactive web dashboard (`app/`), client-side GDPR sync engine (`app/services/extractor.js`), Python data engineering pipeline (`tools/`), and design system specifications (`DESIGN_SYSTEM.md`, `p5-page-templates.html`) are in place.
 
 ---
 
 ## 1. Document map and authority order
 
-Six documents describe this project. They have **strict, non-overlapping ownership** so they cannot silently contradict each other again — which is exactly what happened between `CLAUDE.md` and `WORKFLOW_CONTEXT.md` before 2026-08-05.
+The project documentation has structured, clear ownership:
 
-| Rank | File | Owns | Do not put here |
-|---|---|---|---|
-| 0 | **The Figma file itself** | All design content. **Absolute authority.** | — |
-| 1 | `CLAUDE.md` | Governing constraints, token ladder, node ids, per-component closeout records, hard-won API knowledge | Roadmap status, session history |
-| 2 | `HANDOFF.md` *(this file)* | Orientation, current state, environment, exact next steps | Token values, per-component detail |
-| 3 | `TODO.md` | Prioritised backlog and every open defect | Anything already done |
-| 4 | `WORKFLOW_CONTEXT.md` | Design rationale + technical reference that `CLAUDE.md` lacks: focus-ring convention, effect styles, layout derivations, non-goals, API/MCP quirk tables | Page status, variable counts, node ids |
-| 5 | `CHANGELOG.md` | Dated session record | Current state |
-| — | `DATA_PIPELINE.md` | The `tools/` + `data/` provenance chain | Design decisions |
+| File | Owns |
+|---|---|
+| `README.md` | Primary open-source landing page, architecture overview, quickstart, visual sync guide |
+| `DESIGN_SYSTEM.md` | Design system constraints, token ladder, node IDs, component references |
+| `HANDOFF.md` *(this file)* | Orientation, design history, environment notes, architectural conventions |
+| `DATA_PIPELINE.md` | The `tools/` extraction chain, corpus measurements, and data provenance rules |
+| `CHANGELOG.md` | Dated chronological record of development milestones |
 
 **Rule:** where any document disagrees with the Figma file, **the Figma file wins** — and the disagreement is a defect in the document, to be fixed in the same session it is found.
 
@@ -155,8 +120,8 @@ Omitting `fileKey` returns `MCP error -32602`. The correct tool namespace is `mc
 >
 > | probe | result |
 > |---|---|
-> | `claude mcp list` | `plugin:figma:figma: https://mcp.figma.com/mcp (HTTP)` — **✔ Connected** |
-> | `claude mcp get plugin:figma:figma` | Scope **Dynamic config (from command line)**, type `http`, header `X-Figma-Plugin-Bundle: figma_prod@2_2_96` |
+> | `mcp list` | `plugin:figma:figma: https://mcp.figma.com/mcp (HTTP)` — **✔ Connected** |
+> | `mcp get plugin:figma:figma` | Scope **Dynamic config (from command line)**, type `http`, header `X-Figma-Plugin-Bundle: figma_prod@2_2_96` |
 > | `use_figma` called directly, after loading the `figma-use` skill | **`Error: No such tool available: use_figma`** |
 > | `get_screenshot` / `get_metadata` / `ToolSearch` in the tool list | absent |
 >
@@ -169,10 +134,10 @@ Omitting `fileKey` returns `MCP error -32602`. The correct tool namespace is `mc
 > **⚠ Correction — three earlier "confirmations" in this block were measuring the wrong question.**
 > They are recorded here rather than deleted, because the mistake is the reusable part:
 >
-> - **`~/.claude.json` is the wrong file to read.** Its `mcpServers` is absent globally and `{}` for
+> - **`mcp settings` is the wrong file to read.** Its `mcpServers` is absent globally and `{}` for
 >   `D:/work/Game ID`, and that proves **nothing** — the server's scope is *dynamic config*, injected
 >   at launch, so it was never going to appear there. The earlier conclusion "the server is not in the
->   config at all" was a bad inference from a true reading. **Ask `claude mcp list`, not the config.**
+>   config at all" was a bad inference from a true reading. **Ask `mcp list`, not the config.**
 > - **The process and port checks were irrelevant.** No Figma process on the machine, nothing LISTENING
 >   on 3845/3846/8765, `curl 127.0.0.1:3845/mcp` → `000`. All true, all beside the point: this server
 >   is a **remote HTTPS endpoint at `mcp.figma.com`**, which needs no local process and no local port.
@@ -190,7 +155,7 @@ Omitting `fileKey` returns `MCP error -32602`. The correct tool namespace is `mc
 > code/image/variable tools and cannot execute Plugin API scripts; P5 has to *create* nodes on `10:33`.
 > Do not spend a session enabling it.
 >
-> **The fix that worked: start a fresh session from the launcher whose `claude mcp list` shows the
+> **The fix that worked: start a fresh session from the launcher whose `mcp list` shows the
 > server connected.** Tools are enumerated at session start, so a session that launched without them
 > never gains them retroactively — nothing about the server needed changing, and nothing in the repo did.
 > Apply this the next time a Figma tool reads as absent rather than failing.
@@ -203,7 +168,7 @@ Omitting `fileKey` returns `MCP error -32602`. The correct tool namespace is `mc
 >
 > **What it did not block, and what was therefore completed instead on 2026-08-23:** the whole of
 > §C (`C1`, `C2`), B14's *measurement*, an independent re-verification of every figure in
-> `DATA_PIPELINE.md` §7, and the document reconciliation across `CLAUDE.md` / `TODO.md` /
+> `DATA_PIPELINE.md` §7, and the document reconciliation across `DESIGN_SYSTEM.md` / `TODO.md` /
 > `DATA_PIPELINE.md`. See § 10.
 >
 > **The standing instruction from both outages — "do not work around it" — was honoured in each**:
@@ -271,7 +236,7 @@ variable count is unchanged from 2026-08-05 and **no Cover rewrite is implied.**
 ### Totals
 
 ```
-pages          44          (ids match the CLAUDE.md page map exactly)
+pages          44          (ids match the DESIGN_SYSTEM.md page map exactly)
 variables     215          Primitives 55 · Color 59 · Spacing 13 · Dimension 26
                            Type Primitives 22 · Type 29 · Motion 11
 text styles    10
@@ -309,7 +274,7 @@ counts sum to exactly 33 / 388, which is the arithmetic that caught the stalenes
 **Motion does not follow Color's code-syntax scheme** — for Motion, ANDROID and iOS are *identical*
 (`tSlower`, `easeStandard`, `tPulse`); only WEB differs. Do not "correct" it onto Color's rules.
 
-Full ladder with measured contrast for both modes: **`CLAUDE.md` → Variables**.
+Full ladder with measured contrast for both modes: **`DESIGN_SYSTEM.md` → Variables**.
 
 ### Component inventory
 
@@ -523,7 +488,7 @@ be **looked at**, because a structural read-back is not verification.
 ### Step 1 — Pre-flight (read-only, mandatory)
 
 **Do not skip this, and do not trust §6's "empty" marker.** This document has called a page empty
-twice while it held finished work — Metric Card `10:19` and Wireframes `10:32`, both listed in `CLAUDE.md` § Notes for whoever picks this up.
+twice while it held finished work — Metric Card `10:19` and Wireframes `10:32`, both listed in `DESIGN_SYSTEM.md` § Notes for whoever picks this up.
 An "empty" marker is the most dangerous error in this file because acting on it *destroys* finished
 work rather than merely misinforming.
 
@@ -538,7 +503,7 @@ return { name: p.name, count: p.children.length,
 **If `count` is not 0, stop and read what is there before building anything.**
 
 While you are read-only, re-measure the layout tokens you are about to consume rather than quoting
-them from `CLAUDE.md` — `layout/page-max`, `page-gutter`, `grid-gutter`, `sidebar-expanded`,
+them from `DESIGN_SYSTEM.md` — `layout/page-max`, `page-gutter`, `grid-gutter`, `sidebar-expanded`,
 `sidebar-collapsed`, `topbar-height`, `card-width`, `card-cover-height`, `row-height`.
 
 ### Step 2 — Scope P5 from the wireframes, not from imagination
@@ -580,7 +545,7 @@ fold.
 
 ### Step 3 — Build, in the file's own shape
 
-Page templates are documentation, so they follow the documentation page pattern (`CLAUDE.md`
+Page templates are documentation, so they follow the documentation page pattern (`DESIGN_SYSTEM.md`
 § Documentation page pattern; `10:14` root `98:2` is the reference): root VERTICAL 1560 on
 `bg/canvas`, pad 32, gap 32 → Header → one section per template → **In use** → **Rules** as two
 Always / Never columns with the 4×4 ellipse bullet. Read the conventions off `98:2`; do not
@@ -601,7 +566,7 @@ reproduce them from this table.
 
 ### Step 4 — Verify
 
-The loop, per `CLAUDE.md`: `get_screenshot(nodeId)` → `curl -sL -o /tmp/<n>.png "<url>"` → **Read
+The loop, per `DESIGN_SYSTEM.md`: `get_screenshot(nodeId)` → `curl -sL -o /tmp/<n>.png "<url>"` → **Read
 the PNG and look at it.** On this machine `/tmp/x.png` reads back at
 `C:\Users\Sufiyan\AppData\Local\Temp\x.png`. Asset URLs are short-lived — download once, and treat
 them like a secret.
@@ -629,7 +594,7 @@ Two checks this phase needs specifically:
 
 ### Step 5 — Record it
 
-- `CLAUDE.md` — page-map row `10:33`, a § Page Templates closeout, and any new API lesson.
+- `DESIGN_SYSTEM.md` — page-map row `10:33`, a § Page Templates closeout, and any new API lesson.
 - `TODO.md` — anything the build surfaced, filed with node ids.
 - `CHANGELOG.md` — a dated entry.
 - Cover `35:17` / `35:21` — **only if a variable collection changed.** Both carry counts; a
@@ -703,7 +668,7 @@ work that does not need the file, and did not fake the work that does.
   `provenance.confidence`, and a naive duplicate-title count returns 8 where the documented 6 is right.
 - **Two new measured findings**, both consequential rather than cosmetic: `title` is not a unique
   identifier (§8 item 11) and `1,299 INR` is fabricated (§8 item 12).
-- **Documents reconciled.** `CLAUDE.md` still described the `20,400` component sweep as pending in
+- **Documents reconciled.** `DESIGN_SYSTEM.md` still described the `20,400` component sweep as pending in
   three places after it had closed; the Metric Card page-map row still said "ships fabricated data";
   and "98% zero playtime" was imprecise in four places — the real shape is **173 explicit `0` + 49
   `null` + 4 nonzero**, and conflating null with zero is exactly what the pipeline's NO FABRICATION
@@ -733,7 +698,7 @@ work that does not need the file, and did not fake the work that does.
 - **W1, W2 (page-wide), W3, W4, W6, W9 fixed on instances; W7 was a false alarm** — 30 bound / 0
   unbound, so the "8 raw spacing values" had no live source, exactly like 20,400 itself.
 - **Zero residual retired figures on `10:32`** by literal scan for `1,247`, `20,400` and `724 of`.
-- **Two new API failures recorded in `CLAUDE.md`**, both about instance sub-node handles going stale
+- **Two new API failures recorded in `DESIGN_SYSTEM.md`**, both about instance sub-node handles going stale
   or being pruned the moment you mutate or hide one. Capture metadata as plain data *before*
   mutating, and verify by walking from stable real node ids.
 
@@ -771,8 +736,8 @@ B2 (226 everywhere, 20,400 retired) and the `10:35` Dashboard drop. See the deci
 `10:28` was closed out on **2026-08-04**, not on the 5th; the first session's entire output is documentation.
 
 - Ran a **full read-only audit** of the live file: 212 variables, 10 text styles, 5 effect styles, 0 paint styles, 44 pages, 422 components across 30 sets.
-- **Found `Icon / person` `129:16` exists** — `CLAUDE.md` claimed there was no person icon. It is real, sits in the Icon docs, and has **zero instances**. Corrected.
-- **Resolved the Metric Card id question** — `154:23` / `169:23` confirmed live; `CLAUDE.md` had flagged them "verify before trusting" and had no components-table row at all.
+- **Found `Icon / person` `129:16` exists** — `DESIGN_SYSTEM.md` claimed there was no person icon. It is real, sits in the Icon docs, and has **zero instances**. Corrected.
+- **Resolved the Metric Card id question** — `154:23` / `169:23` confirmed live; `DESIGN_SYSTEM.md` had flagged them "verify before trusting" and had no components-table row at all.
 - **Found the fabricated Metric Card data defect** (issue #1 above) and the three-way library-size inconsistency (issue #2).
 - **Measured the real dataset**: 226 records, Epic-only, 98.2% zero playtime, 58.4% enriched, confidence on 100% of rows.
 - **Rewrote `WORKFLOW_CONTEXT.md`**, which was 4 days stale and actively dangerous — it listed pages `10:20`–`10:29` as "Not Started" when eight of them are finished.
@@ -786,13 +751,13 @@ Full detail: `CHANGELOG.md`.
 
 ```
 D:\work\Game ID\
-├── CLAUDE.md              # constraints, tokens, node ids, API knowledge  (AUTHORITY 1)
+├── DESIGN_SYSTEM.md              # constraints, tokens, node ids, API knowledge  (AUTHORITY 1)
 ├── HANDOFF.md             # this file                                     (AUTHORITY 2)
 ├── TODO.md                # backlog + open defects                        (AUTHORITY 3)
 ├── WORKFLOW_CONTEXT.md    # design rationale + technical reference        (AUTHORITY 4)
 ├── CHANGELOG.md           # dated session record                          (AUTHORITY 5)
 ├── DATA_PIPELINE.md       # tools/ + data/ provenance
-├── Claude chat .txt       # raw transcript of an early session; historical only
+├── Early session transcript       # raw transcript of an early session; historical only
 ├── app/                   # LEGACY static frontend — DO NOT EXTEND (gate, §3)
 │   ├── index.html  app.js  index.css  theme.css
 │   └── pages/  services/
@@ -803,7 +768,7 @@ D:\work\Game ID\
 │   ├── source/  raw/  catalogs/  enriched/
 ├── tools/                 # 6 Python pipeline stages
 ├── .cache/                # Steam API cache — do not commit, do not clear casually
-└── .claude/launch.json
+└── config/launch.json
 ```
 
 Not a git repository. No `package.json`, no build step, no tests.
@@ -838,13 +803,13 @@ The recurring failure modes in this project, in the order they actually happened
    *fabricated* price sits on three nodes while a real one sits on every record. Read the set, the
    collection, or the schema.
 8. **A number that lost its live source and got carried forward as prose.** `~20,400` originated as a
-   sentence in `CLAUDE.md`, propagated into eight shipped doc pages, and was read as measurement for
+   sentence in `DESIGN_SYSTEM.md`, propagated into eight shipped doc pages, and was read as measurement for
    four days; the corpus is **226**. W7's "8" had no source either. And "98% of records have zero
    playtime" quietly absorbed a schema distinction the pipeline works hard to preserve — the real
    split is **173 explicit `0`, 49 `null`, 4 nonzero**, so *unmeasured* had been rounded into *idle*.
    Re-measure anything countable; never quote a document for it.
 9. **Describing work as outstanding after it closed.** The `20,400` component-layer sweep ran on
-   2026-08-22 and three separate `CLAUDE.md` sites still called it pending on 2026-08-23. Same shape
+   2026-08-22 and three separate `DESIGN_SYSTEM.md` sites still called it pending on 2026-08-23. Same shape
    as #8 running backwards. **When you close something, grep the whole document set for every place
    that described it as open** — the close-out note is not the only copy of the claim.
 10. **A number that *was* freshly measured, answering a neighbouring question.** The sharpest version
