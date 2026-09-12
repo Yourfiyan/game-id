@@ -290,6 +290,12 @@ To contribute:
 
 ---
 
+## 🤖 AI Disclosure
+
+Claude Code was used for implementation assistance, debugging, and working with coding and assisting with ES module script ordering.
+
+---
+
 ## 📄 License
 
 This project is licensed under the [MIT License](LICENSE) — free for personal, educational, and open-source use.
