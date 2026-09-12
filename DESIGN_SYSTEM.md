@@ -593,7 +593,7 @@ Things that cost real debugging time. Trust these.
 get_screenshot(nodeId) → curl -sL -o /tmp/<n>.png "<url>" → Read the PNG and actually look
 ```
 
-On this machine `/tmp/x.png` is read back at `C:\Users\Sufiyan\AppData\Local\Temp\x.png`.
+On this machine `/tmp/x.png` is read back at `<temp_dir>/x.png`.
 Screenshot asset URLs are **short-lived and should be treated like a secret** — download once,
 don't persist or publish them.
 

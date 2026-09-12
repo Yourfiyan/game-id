@@ -4,6 +4,7 @@
 
 import { getGames } from '../services/loader.js';
 import { overview, genreDistribution, priceDistribution, confidenceDistribution, playtimeDistribution, acquisitionTimeline, completionAnalysis, storeDistribution } from '../services/analytics.js';
+import { openSyncModal } from '../components/sync-modal.js';
 
 /* ---- token helpers ------------------------------------------------------- */
 const TK = {
@@ -35,6 +36,32 @@ const BAR_COLORS = [TK.brand, TK.brandHover, '#2a7fd4', '#5aa3e8', '#93c5f5',
 
 export async function renderAnalytics() {
   const games = getGames();
+  const content = document.getElementById('content');
+
+  if (!games || games.length === 0) {
+    content.innerHTML = `
+      <div class="page analytics-page">
+        <div class="page-header">
+          <h1 class="page-title">Analytics</h1>
+          <p class="page-subtitle">Ownership intelligence &amp; portfolio metrics</p>
+        </div>
+        <div style="background: var(--bg-layer); border: 1px solid var(--stroke-subtle); border-radius: var(--r-lg); padding: 48px 32px; text-align: center; max-width: 640px; margin: 32px auto;">
+          <div style="font-size: 40px; margin-bottom: 16px;">📊</div>
+          <h2 style="font-size: 20px; font-weight: 600; color: var(--fg-primary); margin-bottom: 8px;">No Analytics Available</h2>
+          <p style="font-size: 14px; color: var(--fg-secondary); line-height: 1.5; margin-bottom: 24px;">
+            Connect your account by syncing an Epic Games GDPR export (.zip or .pdf) to generate valuation breakdowns, genre distribution charts, review analysis, and playtime metrics.
+          </p>
+          <button class="btn-primary" id="analytics-empty-sync" style="font-size: 13px; padding: 8px 20px;">
+            Sync / Import Data
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('analytics-empty-sync')?.addEventListener('click', () => openSyncModal());
+    return;
+  }
+
   const ov = overview(games);
   const genreData = genreDistribution(games);
   const priceData = priceDistribution(games);
@@ -42,7 +69,7 @@ export async function renderAnalytics() {
   const playData  = playtimeDistribution(games);
   const tlData    = acquisitionTimeline(games);
 
-  document.getElementById('content').innerHTML = `
+  content.innerHTML = `
     <div class="page analytics-page">
       <div class="page-header">
         <h1 class="page-title">Analytics</h1>
@@ -116,292 +143,194 @@ function renderBars(data, label, sub, type) {
           <span class="bar-val">${it.count}</span>
         </div>
       `).join('')}
-      ${data.items.length === 0 ? '<div style="font-size:13px;color:var(--fg-tertiary)">No data</div>' : ''}
+      ${items.length === 0 ? '<div style="font-size:13px;color:var(--fg-tertiary)">No data</div>' : ''}
     </div>
   `);
 }
 
-function renderScatter(data, titleText) {
-  const items = Array.isArray(data) ? data : (data.items || data.scatter || []);
+function renderScatter(data, label) {
   return widget(`
-    ${title('🔬', titleText)}
-    <div class="scatter-wrap"><canvas id="chart-scatter"></canvas></div>
-    <div class="analytics-notes" style="margin-top:10px">
-      <ul>
-        <li>Price is the listed store price; playtime is hours recorded across all sources.</li>
-        <li>Games with no recorded playtime appear on the x-axis at 0.</li>
-      </ul>
+    ${title('🎯', label, 'Filtered to titles with playtime')}
+    <div class="scatter-wrap">
+      <canvas id="chart-scatter" width="400" height="200"></canvas>
     </div>
-  `);
+  `, true);
 }
 
 function renderTimeline(data, label, sub) {
   return widget(`
     ${title('📅', label, sub)}
-    <div class="time-line-wrap"><canvas id="chart-timeline"></canvas></div>
-  `);
+    <div class="timeline-canvas-wrap">
+      <canvas id="chart-timeline" width="400" height="160"></canvas>
+    </div>
+  `, true);
 }
 
 function renderHeatmap(games, label) {
-  const genres = (genreDistribution(games)?.distribution ?? []).slice(0, 12).map(i => i.label);
-  const confLevels = ['high', 'medium', 'low'];
-  const grid = [];
-  genres.forEach(g => {
-    confLevels.forEach(c => {
-      const n = games.filter(x => (x.genres ?? []).includes(g) && (x.raw?.provenance?.confidence ?? '') === c).length;
-      grid.push({ genre: g, conf: c, n });
-    });
-  });
-  const maxN = Math.max(...grid.map(x => x.n), 1);
-
-  // generate consistent color per genre
-  const colorByGenre = {};
-  genres.forEach((g, i) => { colorByGenre[g] = DONUT_PALETTE[i % DONUT_PALETTE.length]; });
-
   return widget(`
-    ${title('🗺', label)}
-    <div style="display:flex;gap:24px;flex-wrap:wrap">
-      <div>
-        <div style="display:grid;grid-template-columns:120px repeat(3,56px);gap:2px;font-size:11px">
-          <div></div>
-          ${confLevels.map(c => `<div style="text-align:center;color:var(--fg-tertiary);font-weight:600;text-transform:uppercase">${c}</div>`).join('')}
-          ${genres.map(g => `
-            <div style="color:var(--fg-secondary);padding:4px 0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(g)}</div>
-            ${confLevels.map(c => {
-              const cell = grid.find(x => x.genre === g && x.conf === c);
-              const n = cell?.n ?? 0;
-              const bg = n ? colorByGenre[g] : 'transparent';
-              const op = n ? (0.15 + (n / maxN) * 0.85).toFixed(2) : 0;
-              return `<div style="display:flex;align-items:center;justify-content:center;height:28px;border-radius:3px;background:${bg};opacity:${op};color:${n > 0 ? 'var(--fg-primary)' : 'var(--fg-quaternary)'};font-weight:600">${n || '·'}</div>`;
-            }).join('')}
-          `).join('')}
-        </div>
-      </div>
-      <div style="font-size:11px;color:var(--fg-tertiary);max-width:200px">
-        Each cell shows how many titles of that genre carry that confidence. Opacity scales with count.
-        Titles with no genre assignment are omitted.
-      </div>
-    </div>
-  `);
+    ${title('🗺', label, 'Distribution across confidence buckets')}
+    <div id="chart-heatmap" class="heatmap-container"></div>
+  `, true);
 }
 
-/* ---- chart drawing ------------------------------------------------------- */
-async function drawDonutChart(id, items, palette) {
-  const canvas = document.getElementById(id);
+/* ---- chart drawing helpers (Canvas) -------------------------------------- */
+function sanitize(s) { return s.toLowerCase().replace(/[^a-z0-9]/g, '-'); }
+function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+
+function drawDonutChart(canvasId, items, palette) {
+  const canvas = document.getElementById(canvasId);
   if (!canvas) return;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = 160 * dpr; canvas.height = 160 * dpr;
-  canvas.style.width = '160px'; canvas.style.height = '160px';
   const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const size = 160;
+  canvas.width = size * dpr;
+  canvas.height = size * dpr;
   ctx.scale(dpr, dpr);
 
   const total = items.reduce((s, x) => s + x.count, 0);
   if (!total) return;
 
-  const cx = 80, cy = 80, R = 64, r = 40;
-  let angle = -Math.PI / 2;
+  const cx = size / 2, cy = size / 2, r = 68, innerR = 46;
+  let start = -Math.PI / 2;
+
   items.forEach((it, i) => {
     const slice = (it.count / total) * Math.PI * 2;
     ctx.beginPath();
-    ctx.moveTo(cx + r * Math.cos(angle), cy + r * Math.sin(angle));
-    ctx.arc(cx, cy, R, angle, angle + slice);
-    ctx.arc(cx, cy, r, angle + slice, angle, true);
+    ctx.arc(cx, cy, r, start, start + slice);
+    ctx.arc(cx, cy, innerR, start + slice, start, true);
     ctx.closePath();
     ctx.fillStyle = palette[i % palette.length];
     ctx.fill();
-    angle += slice;
+    start += slice;
   });
-  // center text
-  ctx.fillStyle = TK.fg.primary;
-  ctx.font = 'bold 22px var(--font-sans, sans-serif)';
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText(total, cx, cy - 6);
-  ctx.fillStyle = TK.fg.tertiary;
-  ctx.font = '10px var(--font-sans, sans-serif)';
-  ctx.fillText('titles', cx, cy + 12);
 }
 
-async function drawBarChart(id, items, colors) {
-  const canvas = document.getElementById(id);
+function drawBarChart(canvasId, items, palette) {
+  // Handled via CSS bars in renderBars() for crisp text rendering
+}
+
+function drawScatter(canvasId, points) {
+  const canvas = document.getElementById(canvasId);
   if (!canvas) return;
-  const wrap = canvas.parentElement;
-  const w = wrap.clientWidth;
-  const h = 260;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = w * dpr; canvas.height = h * dpr;
-  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
   const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-
-  const pad = { top: 10, right: 50, bottom: 80, left: 10 };
-  const chartW = w - pad.left - pad.right;
-  const max = Math.max(...items.map(x => x.count), 1);
-  const maxBars = 10;
-  const visible = items.slice(0, maxBars);
-  const barH = Math.max(16, Math.min(32, (h - pad.top - pad.bottom) / visible.length - 6));
-
-  visible.forEach((it, i) => {
-    const y = pad.top + i * (barH + 6);
-    const bw = (it.count / max) * chartW;
-    const x = pad.left;
-
-    ctx.fillStyle = colors[i % colors.length];
-    ctx.beginPath();
-    ctx.roundRect(x, y, bw, barH, 3);
-    ctx.fill();
-
-    ctx.fillStyle = TK.fg.tertiary;
-    ctx.font = '11px var(--font-sans, sans-serif)';
-    ctx.textAlign = 'left';
-    ctx.textBaseline = 'top';
-    ctx.fillText(truncate(it.label, 14), x, y + barH + 4);
-
-    ctx.fillStyle = TK.fg.primary;
-    ctx.font = 'bold 11px var(--font-sans, sans-serif)';
-    ctx.textAlign = 'right';
-    ctx.fillText(it.count, w - pad.right + 40, y + barH / 2 - 6);
-  });
-}
-
-async function drawScatter(id, items) {
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  const wrap = canvas.parentElement;
-  const w = wrap.clientWidth;
-  const h = 320;
   const dpr = window.devicePixelRatio || 1;
-  canvas.width = w * dpr; canvas.height = h * dpr;
-  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-  const ctx = canvas.getContext('2d');
-  ctx.scale(dpr, dpr);
-
-  const pad = { top: 10, right: 20, bottom: 40, left: 48 };
-  const chartW = w - pad.left - pad.right;
-  const chartH = h - pad.top - pad.bottom;
-
-  const prices = items.map(x => x.price ?? 0).filter(p => p > 0);
-  const playtimes = items.map(x => x.playtime ?? 0).filter(t => t > 0);
-  const maxPrice = Math.max(...prices, 1);
-  const maxPlay = Math.max(...playtimes, 1);
-
-  // grid lines
-  ctx.strokeStyle = TK.subtle;
-  ctx.lineWidth = 1;
-  for (let i = 0; i <= 4; i++) {
-    const y = pad.top + (chartH / 4) * i;
-    ctx.beginPath(); ctx.moveTo(pad.left, y); ctx.lineTo(w - pad.right, y); ctx.stroke();
-  }
-
-  // axis labels
-  ctx.fillStyle = TK.fg.tertiary;
-  ctx.font = '10px var(--font-sans, sans-serif)';
-  ctx.textAlign = 'center';
-  ctx.fillText(`Playtime (hours) → max ${Math.round(maxPlay)}`, pad.left + chartW / 2, h - 4);
-  ctx.save();
-  ctx.translate(10, pad.top + chartH / 2);
-  ctx.rotate(-Math.PI / 2);
-  ctx.fillText(`Price (${items[0]?.currency || 'USD'}) → max ${Math.round(maxPrice)}`, 0, 0);
-  ctx.restore();
-
-  // zero-line at y=playtime=0
-  const zeroY = pad.top + chartH;
-  ctx.strokeStyle = TK.fg.quat;
-  ctx.lineWidth = 1;
-  ctx.setLineDash([4, 4]);
-  ctx.beginPath(); ctx.moveTo(pad.left, zeroY); ctx.lineTo(w - pad.right, zeroY); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle = TK.fg.quat;
-  ctx.font = '10px var(--font-sans, sans-serif)';
-  ctx.textAlign = 'left';
-  ctx.fillText('0h', pad.left - 2, zeroY + 4);
-
-  // points
-  items.forEach(it => {
-    if (it.price == null) return;
-    const px = pad.left + (it.price / maxPrice) * chartW;
-    const py = pad.top + chartH - ((it.playtime ?? 0) / maxPlay) * chartH;
-    ctx.beginPath();
-    ctx.arc(px, py, 4, 0, Math.PI * 2);
-    ctx.fillStyle = 'rgba(17, 94, 163, 0.7)';
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  });
-}
-
-async function drawTimeline(id, items) {
-  const canvas = document.getElementById(id);
-  if (!canvas) return;
-  const wrap = canvas.parentElement;
-  const w = wrap.clientWidth;
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width || 400;
   const h = 200;
-  const dpr = window.devicePixelRatio || 1;
-  canvas.width = w * dpr; canvas.height = h * dpr;
-  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
-  const ctx = canvas.getContext('2d');
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
   ctx.scale(dpr, dpr);
 
-  const pad = { top: 10, right: 20, bottom: 30, left: 48 };
-  const chartW = w - pad.left - pad.right;
-  const chartH = h - pad.top - pad.bottom;
-
-  if (items.length === 0) {
+  if (!points || !points.length) {
     ctx.fillStyle = TK.fg.tertiary;
-    ctx.font = '12px var(--font-sans, sans-serif)';
-    ctx.textAlign = 'center';
-    ctx.fillText('No dated acquisitions', w / 2, h / 2);
+    ctx.font = '12px Inter, Segoe UI, sans-serif';
+    ctx.fillText('No recorded playtime data in this library', 20, h / 2);
     return;
   }
 
-  const maxCount = Math.max(...items.map(x => x.count), 1);
-  const minDate = new Date(items[0].label);
-  const maxDate = new Date(items[items.length - 1].label);
-  const dateRange = maxDate - minDate || 1;
+  const maxHours = Math.max(...points.map(p => p.hours), 1);
+  const maxPrice = Math.max(...points.map(p => p.price), 100);
+  const pad = 36;
 
-  // area fill
+  // Grid
+  ctx.strokeStyle = TK.subtle;
+  ctx.lineWidth = 1;
   ctx.beginPath();
-  ctx.moveTo(pad.left, pad.top + chartH);
-  items.forEach((it, i) => {
-    const x = pad.left + ((new Date(it.label) - minDate) / dateRange) * chartW;
-    const y = pad.top + chartH - (it.count / maxCount) * chartH;
-    ctx.lineTo(x, y);
-  });
-  ctx.lineTo(pad.left + chartW, pad.top + chartH);
-  ctx.closePath();
-  ctx.fillStyle = 'rgba(17, 94, 163, 0.1)';
-  ctx.fill();
-
-  // line
-  ctx.beginPath();
-  items.forEach((it, i) => {
-    const x = pad.left + ((new Date(it.label) - minDate) / dateRange) * chartW;
-    const y = pad.top + chartH - (it.count / maxCount) * chartH;
-    if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-  });
-  ctx.strokeStyle = TK.brand;
-  ctx.lineWidth = 2;
+  ctx.moveTo(pad, pad);
+  ctx.lineTo(pad, h - pad);
+  ctx.lineTo(w - pad, h - pad);
   ctx.stroke();
 
-  // x-axis labels
-  ctx.fillStyle = TK.fg.tertiary;
-  ctx.font = '10px var(--font-sans, sans-serif)';
-  ctx.textAlign = 'center';
-  [0, 0.25, 0.5, 0.75, 1].forEach(t => {
-    const x = pad.left + chartW * t;
-    const d = new Date(minDate.getTime() + dateRange * t);
-    ctx.fillText(formatDateShort(d), x, h - 6);
+  // Points
+  points.forEach(p => {
+    const x = pad + (p.hours / maxHours) * (w - pad * 2);
+    const y = (h - pad) - (p.price / maxPrice) * (h - pad * 2);
+    ctx.beginPath();
+    ctx.arc(x, y, 4, 0, Math.PI * 2);
+    ctx.fillStyle = TK.brandHover;
+    ctx.fill();
   });
 }
 
-async function drawHeatmap(id, games) { /* static HTML grid — no canvas needed */ }
+function drawTimeline(canvasId, months) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.getBoundingClientRect();
+  const w = rect.width || 400;
+  const h = 160;
+  canvas.width = w * dpr;
+  canvas.height = h * dpr;
+  ctx.scale(dpr, dpr);
 
-/* ---- utilities ----------------------------------------------------------- */
-function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function truncate(s, n) { return s.length > n ? s.slice(0, n - 1) + '…' : s; }
-function sanitize(s) { return s.toLowerCase().replace(/[^a-z0-9]/g, ''); }
-function formatDateShort(d) {
-  if (!(d instanceof Date) || isNaN(d)) return '';
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+  if (!months || !months.length) {
+    ctx.fillStyle = TK.fg.tertiary;
+    ctx.font = '12px Inter, Segoe UI, sans-serif';
+    ctx.fillText('No acquisition dates recorded in this library', 20, h / 2);
+    return;
+  }
+
+  const max = Math.max(...months.map(m => m.count), 1);
+  const pad = 30;
+  const barW = Math.max(2, (w - pad * 2) / months.length - 2);
+
+  months.forEach((m, i) => {
+    const barH = (m.count / max) * (h - pad * 2);
+    const x = pad + i * ((w - pad * 2) / months.length);
+    const y = h - pad - barH;
+    ctx.fillStyle = TK.brand;
+    ctx.fillRect(x, y, barW, barH);
+  });
+}
+
+function drawHeatmap(containerId, games) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+
+  const topGenres = ['Action', 'Indie', 'Adventure', 'RPG', 'Strategy', 'Casual', 'Simulation'].slice(0, 6);
+  const confs = ['High', 'Medium', 'Low'];
+
+  const matrix = {};
+  confs.forEach(c => {
+    matrix[c] = {};
+    topGenres.forEach(g => { matrix[c][g] = 0; });
+  });
+
+  games.forEach(g => {
+    const c = g.confidence || 'Medium';
+    (g.genres || []).forEach(gen => {
+      if (topGenres.includes(gen) && matrix[c]) {
+        matrix[c][gen]++;
+      }
+    });
+  });
+
+  let maxVal = 1;
+  confs.forEach(c => topGenres.forEach(g => {
+    if (matrix[c][g] > maxVal) maxVal = matrix[c][g];
+  }));
+
+  el.innerHTML = `
+    <table class="heatmap-table">
+      <thead>
+        <tr>
+          <th>Confidence</th>
+          ${topGenres.map(g => `<th>${esc(g)}</th>`).join('')}
+        </tr>
+      </thead>
+      <tbody>
+        ${confs.map(c => `
+          <tr>
+            <td class="heatmap-row-header">${c}</td>
+            ${topGenres.map(g => {
+              const val = matrix[c][g];
+              const intensity = (val / maxVal).toFixed(2);
+              return `<td class="heatmap-cell" style="background: rgba(17,94,163,${Math.max(0.08, intensity)})" title="${c} × ${g}: ${val} titles">${val}</td>`;
+            }).join('')}
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
 }

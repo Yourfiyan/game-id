@@ -5,7 +5,7 @@
    ========================================================================== */
 
 import { extractFromZipOrFile } from '../services/extractor.js';
-import { loadAccount, getCurrentAccount } from '../services/loader.js';
+import { setImportedAccountData } from '../services/loader.js';
 
 let modalContainer = null;
 let lastExtractionResult = null;
@@ -16,6 +16,24 @@ function esc(s) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+export function updateTopbarSyncUI(profile) {
+  if (profile && profile.displayName) {
+    const avatarEl = document.querySelector('.user-avatar');
+    if (avatarEl) {
+      avatarEl.textContent = profile.displayName.slice(0, 2).toUpperCase();
+      avatarEl.title = `${profile.displayName} (${profile.email || ''})`;
+    }
+  }
+
+  const syncStatus = document.querySelector('.sync-status');
+  if (syncStatus) {
+    syncStatus.innerHTML = `
+      <span class="sync-dot" style="background: var(--status-success-fg); box-shadow: 0 0 8px var(--status-success-fg);"></span>
+      <span style="color: var(--status-success-fg); font-weight: 500;">Synced just now</span>
+    `;
+  }
 }
 
 /**
@@ -328,39 +346,24 @@ function renderResults(data) {
   `;
 }
 
-function applyExtractedData() {
+export function applyExtractedData() {
   if (!lastExtractionResult) return;
 
-  const prof = lastExtractionResult.profile;
+  // 1. Update application state and persist to localStorage
+  setImportedAccountData(lastExtractionResult);
 
-  // Save to localStorage
-  localStorage.setItem('gameid-synced-profile', JSON.stringify(prof));
-  localStorage.setItem('gameid-last-sync', new Date().toISOString());
+  // 2. Update topbar UI
+  updateTopbarSyncUI(lastExtractionResult.profile);
 
-  // Update topbar status
-  const syncStatus = document.querySelector('.sync-status');
-  if (syncStatus) {
-    syncStatus.innerHTML = `
-      <span class="sync-dot" style="background: var(--status-success-fg); box-shadow: 0 0 8px var(--status-success-fg);"></span>
-      <span style="color: var(--status-success-fg); font-weight: 500;">Synced just now</span>
-    `;
-  }
-
-  // Update user avatar initials in topbar
-  const avatarEl = document.querySelector('.user-avatar');
-  if (avatarEl && prof.displayName) {
-    avatarEl.textContent = prof.displayName.slice(0, 2).toUpperCase();
-    avatarEl.title = `${prof.displayName} (${prof.email || ''})`;
-  }
-
-  // Close modal and show notification
+  // 3. Close modal
   closeSyncModal();
 
-  // Reload current account / trigger page update
-  const curr = getCurrentAccount() || 'B';
-  loadAccount(curr).then(() => {
-    const hash = window.location.hash.replace('#', '') || 'home';
-    const [route] = hash.split('/');
-    import('../app.js').then(m => m.navigate(route));
+  // 4. Force re-render the current view with the updated data
+  const hash = window.location.hash.replace('#', '') || 'home';
+  const [route] = hash.split('/');
+  import('../app.js').then(m => {
+    if (m && m.navigate) {
+      m.navigate(route, null, true);
+    }
   });
 }

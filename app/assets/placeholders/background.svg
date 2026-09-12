@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Background placeholder. Used when no verified hero artwork exists for a title.
+     16:9 to match the typical game detail hero layout. -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1080" width="1920" height="1080"
+     role="img" aria-label="No background artwork available">
+  <defs>
+    <linearGradient id="bg-grad" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#0b0d13"/>
+      <stop offset="40%" stop-color="#07080c"/>
+      <stop offset="100%" stop-color="#07080c"/>
+    </linearGradient>
+    <pattern id="bg-grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0v40" fill="none" stroke="#ffffff" stroke-opacity="0.02" stroke-width="1"/>
+    </pattern>
+  </defs>
+
+  <rect width="1920" height="1080" fill="url(#bg-grad)"/>
+  <rect width="1920" height="1080" fill="url(#bg-grid)"/>
+  <rect x="1" y="1" width="1918" height="1078" fill="none"
+        stroke="#ffffff" stroke-opacity="0.04"/>
+
+  <g transform="translate(960 480)" fill="none" stroke="#3f465a" stroke-width="3"
+     stroke-linecap="round" stroke-linejoin="round" opacity="0.6">
+    <rect x="-80" y="-60" width="160" height="120" rx="8"/>
+    <circle cx="-30" cy="-16" r="14"/>
+    <path d="M-80 36l50-42 34 28 26-21 50 40v21a8 8 0 0 1-8 8h-144a8 8 0 0 1-8-8z"
+          fill="#3f465a" stroke="none" fill-opacity="0.5"/>
+  </g>
+
+  <text x="960" y="660" text-anchor="middle" fill="#3f465a"
+        font-family="Segoe UI, system-ui, sans-serif" font-size="24" font-weight="600"
+        letter-spacing="0.1em">NO BACKGROUND ARTWORK</text>
+  <text x="960" y="700" text-anchor="middle" fill="#2a2f3d"
+        font-family="Segoe UI, system-ui, sans-serif" font-size="18">
+    Needs Manual Verification
+  </text>
+</svg>

@@ -79,7 +79,7 @@ python -m http.server 8766
 # http://localhost:8766/app/
 ```
 
-> **✨ Zero-Config Demo Mode:** A fresh clone automatically loads built-in sanitized demo accounts so you can explore all features immediately. You can import your own library at any time using the client-side **Sync now** button.
+> **✨ Clean Privacy-First Launch:** A fresh installation starts with no accounts loaded. You can import your Epic Games library at any time using the 100% client-side **Sync now** button.
 
 ---
 
@@ -239,10 +239,9 @@ game-id/
 │   │   └── settings.js / .css   # Theme, accounts, and preferences
 │   ├── services/                # Core frontend business logic
 │   │   ├── extractor.js         # Client-side PDF & ZIP extraction engine
-│   │   ├── loader.js            # Runtime data loader with demo fallback
+│   │   ├── loader.js            # Runtime data loader and account manager
 │   │   ├── analytics.js         # Statistical and financial computation engine
-│   │   ├── filters.js           # Multi-criteria filtering & sorting
-│   │   └── dummy-data.js        # Sanitized demo catalog
+│   │   └── filters.js           # Multi-criteria filtering & sorting
 │   └── vendor/                  # Bundled browser libraries (PDF.js, JSZip)
 ├── assets/
 │   └── placeholders/            # Fallback cover art and background SVGs

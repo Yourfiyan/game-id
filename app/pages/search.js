@@ -3,6 +3,7 @@
    ========================================================================== */
 
 import { getGames } from '../services/loader.js';
+import { openSyncModal } from '../components/sync-modal.js';
 
 const SUGGESTIONS = [
   'genre:roguelike',
@@ -65,34 +66,32 @@ function matches(g, q, filters) {
   }
   if (filters.platform) {
     const p = filters.platform.toLowerCase();
-    if (!(g.raw?.platform ?? []).some(x => String(x).toLowerCase().includes(p))) return false;
+    if (!(g.platforms || []).some(x => String(x).toLowerCase().includes(p))) return false;
   }
   if (filters.genre) {
     if (!(g.genres ?? []).some(x => x.toLowerCase().includes(filters.genre))) return false;
   }
   if (filters.store) {
-    const s = (g.store ?? g.platform ?? '').toLowerCase();
+    const s = (g.marketplace || g.store || '').toLowerCase();
     if (!s.includes(filters.store)) return false;
   }
   if (filters.price === 'free') {
-    const p = g.pricing?.current;
-    if (p != null && p !== 0 && p !== '0' && p !== 'free') return false;
+    if (!g.isFree && (g.currentPrice ?? g.msrp) > 0) return false;
   }
   if (filters.price === 'paid') {
-    const p = g.pricing?.current;
-    if (p == null || p === 0 || String(p) === 'free') return false;
+    if (g.isFree || (g.currentPrice ?? g.msrp ?? 0) === 0) return false;
   }
   if (filters.played === false) {
-    if (g.raw?.playtimePlayed && g.raw.playtimePlayed > 0) return false;
+    if (g.playtime && g.playtime > 0) return false;
   }
   if (filters.played === true) {
-    if (!g.raw?.playtimePlayed || g.raw.playtimePlayed === 0) return false;
+    if (!g.playtime || g.playtime === 0) return false;
   }
   if (filters.confidence) {
-    if ((g.raw?.provenance?.confidence ?? '') !== filters.confidence) return false;
+    if ((g.confidence || '').toLowerCase() !== filters.confidence) return false;
   }
   if (filters.minRating != null) {
-    const r = g.ratings?.igdb;
+    const r = g.steamScore ?? g.igdbCritic ?? g.metacritic;
     if (r == null || r < filters.minRating) return false;
   }
   return true;
@@ -101,12 +100,13 @@ function matches(g, q, filters) {
 export async function renderSearch(presetQuery) {
   const content = document.getElementById('content');
   const query = presetQuery || '';
+  const games = getGames();
 
   content.innerHTML = `
     <div class="page search-page">
       <div class="search-hero">
         <h1>Search</h1>
-        <p>Search ${getGames().length} entitlements by title, genre, platform, store, confidence, or playtime.</p>
+        <p>Search ${games.length} entitlements by title, genre, platform, store, confidence, or playtime.</p>
         <div class="search-suggestions">
           ${SUGGESTIONS.map(s => `<button class="search-chip">${esc(s)}</button>`).join('')}
         </div>
@@ -115,9 +115,9 @@ export async function renderSearch(presetQuery) {
     </div>
   `;
 
-  const box = content.querySelector('.search-hero'); // locate input area
+  const box = content.querySelector('.search-hero');
 
-  // Build a search input
+  // Build search input
   const inputWrap = document.createElement('div');
   inputWrap.style.cssText = 'position:relative;margin-top:16px';
   inputWrap.innerHTML = `
@@ -132,20 +132,35 @@ export async function renderSearch(presetQuery) {
   const resultsEl = document.getElementById('search-results');
 
   function doSearch(raw) {
-    const { q, filters } = parseQuery(raw);
-    let games = getGames();
-    if (q || Object.keys(filters).length) {
-      games = games.filter(g => matches(g, q, filters));
+    const allGames = getGames();
+    if (!allGames.length) {
+      resultsEl.innerHTML = `
+        <div class="no-results" style="padding: 40px 20px; text-align: center;">
+          <p style="font-size: 16px; font-weight: 600; color: var(--fg-primary);">No library connected</p>
+          <p style="font-size: 13px; color: var(--fg-secondary); margin-top: 4px; margin-bottom: 16px;">
+            Import your Epic Games account export to enable full-text searching across your collection.
+          </p>
+          <button class="btn-primary" id="search-sync-btn" style="font-size: 12px; padding: 6px 16px;">Sync now</button>
+        </div>
+      `;
+      document.getElementById('search-sync-btn')?.addEventListener('click', () => openSyncModal());
+      return;
     }
-    const total = games.length;
+
+    const { q, filters } = parseQuery(raw);
+    let matchedGames = allGames;
+    if (q || Object.keys(filters).length) {
+      matchedGames = allGames.filter(g => matches(g, q, filters));
+    }
+    const total = matchedGames.length;
     if (!raw && !total) {
       resultsEl.innerHTML = `
         <div class="search-results-head"><span></span></div>
-        <div class="no-results"><p>Start typing to search</p><p>All ${getGames().length} titles will appear as you type</p></div>
+        <div class="no-results"><p>Start typing to search</p><p>All ${allGames.length} titles will appear as you type</p></div>
       `;
       return;
     }
-    const top = games.slice(0, 50);
+    const top = matchedGames.slice(0, 50);
     resultsEl.innerHTML = `
       <div class="search-results-head">
         <span class="result-meta">${total} result${total !== 1 ? 's' : ''}${Object.keys(filters).length ? ' (filtered)' : ''}</span>
@@ -159,9 +174,9 @@ export async function renderSearch(presetQuery) {
               ${top.map(g => `
                 <tr class="clickable" data-id="${esc(g.id)}">
                   <td class="td-title">${esc(g.title)}</td>
-                  <td class="td-platform">${esc(g.store ?? g.platform ?? '—')}</td>
-                  <td>${g.raw?.platform ? (Array.isArray(g.raw.platform) ? g.raw.platform.join(', ') : g.raw.platform) : '—'}</td>
-                  <td>${badge(g.raw?.provenance?.confidence)}</td>
+                  <td class="td-platform">${esc(g.marketplace || g.store || 'Epic Games')}</td>
+                  <td>${esc((g.platforms || ['Windows']).join(', '))}</td>
+                  <td><span class="badge badge-${(g.confidence || 'medium').toLowerCase() === 'high' ? 'success' : ((g.confidence || '').toLowerCase() === 'low' ? 'danger' : 'caution')}">${esc(g.confidence || 'Medium')}</span></td>
                 </tr>
               `).join('')}
             </tbody>
@@ -177,7 +192,7 @@ export async function renderSearch(presetQuery) {
     `;
     resultsEl.querySelectorAll('[data-id]').forEach(el => {
       el.addEventListener('click', () => {
-        import('./game-detail.js').then(m => m.renderGameDetail(el.dataset.id));
+        window.location.hash = `#game/${encodeURIComponent(el.dataset.id)}`;
       });
     });
     const clearBtn = resultsEl.querySelector('.clear-search-btn');
@@ -189,24 +204,13 @@ export async function renderSearch(presetQuery) {
     }
   }
 
-  let debounce;
-  input.addEventListener('input', () => {
-    clearTimeout(debounce);
-    debounce = setTimeout(() => doSearch(input.value), 120);
+  input.addEventListener('input', () => doSearch(input.value));
+  box.querySelectorAll('.search-chip').forEach(btn => {
+    btn.addEventListener('click', () => {
+      input.value = btn.textContent;
+      doSearch(input.value);
+    });
   });
-  input.addEventListener('keydown', e => { if (e.key === 'Escape') { input.value = ''; doSearch(''); } });
 
-  if (query) doSearch(query);
-  else doSearch('');
-
-  // chips
-  document.querySelectorAll('.search-chip').forEach(btn => {
-    btn.addEventListener('click', () => { input.value = btn.textContent; doSearch(btn.textContent); });
-  });
-}
-
-function badge(conf) {
-  const map = { high: 'badge-success', medium: 'badge-caution', low: 'badge-danger' };
-  const cls = map[conf] || 'badge-neutral';
-  return conf ? `<span class="badge ${cls}">${conf}</span>` : '<span style="color:var(--fg-quaternary)">—</span>';
+  doSearch(query);
 }

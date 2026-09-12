@@ -34,4 +34,6 @@ coverage/
 # Local project data
 data/*
 !data/.gitkeep
+app/data/
+app/data/*
 workspace_test.txt

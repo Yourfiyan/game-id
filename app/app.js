@@ -1,8 +1,8 @@
 /* ==========================================================================
-   Game ID — App Router
+   Game ID — App Router & Topbar Controller
    ========================================================================== */
 
-import { loadAccount, getCurrentAccount, getAccounts } from './services/loader.js';
+import { loadAccount, getProfile, hasAccount, getLastSyncTime } from './services/loader.js';
 import { renderHome } from './pages/home.js';
 import { renderLibrary } from './pages/library.js';
 import { renderGameDetail } from './pages/game-detail.js';
@@ -38,8 +38,8 @@ const pageTitles = {
 
 let currentRoute = null;
 
-export async function navigate(route, params) {
-  if (currentRoute === route && !params) return;
+export async function navigate(route, params, force = false) {
+  if (currentRoute === route && !params && !force) return;
   currentRoute = route;
 
   const renderer = routes[route];
@@ -73,27 +73,75 @@ export function escapeHtml(s) {
     .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
+export function updateTopbarProfile(profile) {
+  const avatarEl = document.querySelector('.user-avatar');
+  const syncStatus = document.querySelector('.sync-status');
+
+  if (profile && (profile.displayName || profile.fullName || profile.email)) {
+    const name = profile.displayName || profile.fullName || 'User';
+    if (avatarEl) {
+      const initials = name.slice(0, 2).toUpperCase();
+      avatarEl.textContent = initials;
+      avatarEl.title = `${name} (${profile.email || 'Connected'})`;
+      avatarEl.classList.remove('guest');
+    }
+
+    if (syncStatus) {
+      syncStatus.innerHTML = `
+        <span class="sync-dot" style="background: var(--status-success-fg); box-shadow: 0 0 8px var(--status-success-fg);"></span>
+        <span style="color: var(--status-success-fg); font-weight: 500;">Connected</span>
+      `;
+    }
+  } else {
+    // Logged out / fresh state
+    if (avatarEl) {
+      avatarEl.textContent = '—';
+      avatarEl.title = 'No account connected';
+      avatarEl.classList.add('guest');
+    }
+
+    if (syncStatus) {
+      syncStatus.innerHTML = `
+        <span class="sync-dot" style="background: var(--fg-quaternary); box-shadow: none;"></span>
+        <span style="color: var(--fg-quaternary); font-weight: 400;">Not connected</span>
+      `;
+    }
+  }
+}
+
 /* --------------------------------------------------------------- bootstrap */
 document.addEventListener('DOMContentLoaded', async () => {
   // Theme
-  const saved = localStorage.getItem('gameid-theme') || 'dark';
-  document.documentElement.setAttribute('data-theme', saved);
+  const savedTheme = localStorage.getItem('gameid-theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
 
-  // Load config first (needed by everything)
-  await loadAccount('A');
+  // Load account data from localStorage (or clean fresh state)
+  await loadAccount();
+
+  // Update topbar profile indicator
+  const prof = getProfile();
+  updateTopbarProfile(prof);
+
+  // Setup Sync now button in topbar
+  const syncBtn = document.querySelector('.sync-btn');
+  if (syncBtn) {
+    syncBtn.addEventListener('click', () => {
+      openSyncModal();
+    });
+  }
 
   // Default route
   const hash = window.location.hash.replace('#', '') || 'home';
   const [route] = hash.split('/');
-  await navigate(route);
+  await navigate(route || 'home');
 });
 
 window.addEventListener('hashchange', () => {
   const [route] = window.location.hash.replace('#', '').split('/');
-  navigate(route);
+  navigate(route || 'home');
 });
 
-// Theme toggle on avatar click (or could be moved to settings)
+// Shortcuts: Ctrl+K / Cmd+K -> Search
 document.addEventListener('keydown', e => {
   if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
     e.preventDefault();
@@ -106,41 +154,5 @@ document.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.id === 'topbar-search') {
     const q = e.target.value.trim();
     navigate('search', q || undefined);
-  }
-});
-
-// Account switcher & Topbar buttons
-document.addEventListener('DOMContentLoaded', () => {
-  document.querySelectorAll('.account-btn').forEach(btn => {
-    btn.addEventListener('click', async () => {
-      const acct = btn.dataset.account;
-      document.querySelectorAll('.account-btn').forEach(b => b.classList.toggle('active', b.dataset.account === acct));
-      await loadAccount(acct);
-      // Refresh current view
-      const hash = window.location.hash.replace('#', '') || 'home';
-      const [route] = hash.split('/');
-      await navigate(route);
-    });
-  });
-
-  // Sync now button in topbar
-  const syncBtn = document.querySelector('.sync-btn');
-  if (syncBtn) {
-    syncBtn.addEventListener('click', () => {
-      openSyncModal();
-    });
-  }
-
-  // Restore synced profile display if available
-  const savedProfile = localStorage.getItem('gameid-synced-profile');
-  if (savedProfile) {
-    try {
-      const prof = JSON.parse(savedProfile);
-      const avatarEl = document.querySelector('.user-avatar');
-      if (avatarEl && prof.displayName) {
-        avatarEl.textContent = prof.displayName.slice(0, 2).toUpperCase();
-        avatarEl.title = `${prof.displayName} (${prof.email || ''})`;
-      }
-    } catch (e) {}
   }
 });

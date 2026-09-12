@@ -67,44 +67,6 @@ body {
   letter-spacing: -0.01em;
 }
 
-/* ---- Account switcher (Figma: circular A/B buttons) ---------------------- */
-.account-switcher {
-  display: flex;
-  justify-content: center;
-  gap: 8px;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--stroke-divider);
-}
-
-.account-btn {
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-family: var(--font-sans);
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--fg-secondary);
-  background: transparent;
-  border: 1px solid var(--stroke-subtle);
-  border-radius: var(--r-circular);
-  cursor: pointer;
-  transition: all var(--t-fast) var(--ease-standard);
-}
-
-.account-btn:hover {
-  background: var(--bg-nav-hover);
-  border-color: var(--stroke-strong);
-  color: var(--fg-primary);
-}
-
-.account-btn.active {
-  background: rgba(15,108,189,0.12);
-  border-color: var(--brand-rest);
-  color: var(--brand-hover);
-}
-
 /* ---- Nav ----------------------------------------------------------------- */
 .nav {
   flex: 1;

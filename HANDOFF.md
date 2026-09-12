@@ -191,7 +191,7 @@ node.setSharedPluginData('dsb', 'key',    'component/loading-skeleton');
 get_screenshot(nodeId) → curl -sL -o /tmp/<n>.png "<url>" → Read the PNG and actually look
 ```
 
-On this machine `/tmp/x.png` is read back at `C:\Users\Sufiyan\AppData\Local\Temp\x.png`. Screenshot asset URLs are **short-lived and should be treated like a secret** — download once, never persist or publish them.
+On this machine `/tmp/x.png` is read back at `<temp_dir>/x.png`. Screenshot asset URLs are **short-lived and should be treated like a secret** — download once, never persist or publish them.
 
 **A structural read-back is not verification.** A geometry check once reported footer notes as "no clipping — pass" while they rendered at 1.97:1 and were illegible. Properties prove what you *set*; only pixels prove what *renders*.
 
@@ -568,7 +568,7 @@ reproduce them from this table.
 
 The loop, per `DESIGN_SYSTEM.md`: `get_screenshot(nodeId)` → `curl -sL -o /tmp/<n>.png "<url>"` → **Read
 the PNG and look at it.** On this machine `/tmp/x.png` reads back at
-`C:\Users\Sufiyan\AppData\Local\Temp\x.png`. Asset URLs are short-lived — download once, and treat
+`<temp_dir>/x.png`. Asset URLs are short-lived — download once, and treat
 them like a secret.
 
 **Both modes.** Pin the Color collection on the **documentation FRAME only** — never on a

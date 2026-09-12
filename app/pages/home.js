@@ -2,23 +2,24 @@
    Game ID — Home Page
    ========================================================================== */
 
-import { getGames, getCurrentAccount, getAccounts } from '../services/loader.js';
+import { getGames, getCurrentAccount, getProfile, hasAccount } from '../services/loader.js';
 import { overview, genreDistribution, storeDistribution, acquisitionTimeline, completionAnalysis, collectionHealth } from '../services/analytics.js';
+import { openSyncModal } from '../components/sync-modal.js';
 import { formatPrice } from './library.js';
-
-const UNKNOWN = '<span style="color:var(--fg-quaternary);font-style:italic">Needs Manual Verification</span>';
 
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
 export async function renderHome() {
+  const content = document.getElementById('content');
   const games = getGames();
-  if (!games.length) {
-    document.getElementById('content').innerHTML =
-      '<div class="page loading"><div class="spinner"></div>Loading…</div>';
+  const prof = getProfile();
+
+  if (!games || games.length === 0) {
+    renderEmptyHome(content);
     return;
   }
 
-  const acct = getCurrentAccount();
+  const acctLabel = prof?.displayName || getCurrentAccount() || 'Primary Account';
   const ov = overview(games);
   const genres = genreDistribution(games);
   const stores = storeDistribution(games);
@@ -26,13 +27,13 @@ export async function renderHome() {
   const comp = completionAnalysis(games);
   const health = collectionHealth(games);
 
-  const priceSym = games[0]?.currency === 'USD' ? '$' : '₹';
+  const priceSym = games[0]?.currency === 'USD' ? '$' : (games[0]?.currency === 'INR' ? '₹' : '$');
 
-  document.getElementById('content').innerHTML = `
-    <div class="page">
+  content.innerHTML = `
+    <div class="page home-page">
       <div class="page-header">
         <h1 class="page-title">Dashboard</h1>
-        <p class="page-subtitle">Account ${esc(acct)} · ${ov.totalEntitlements} entitlements · ${ov.byClassification.game ?? 0} games</p>
+        <p class="page-subtitle">${esc(acctLabel)} · ${ov.totalEntitlements} entitlements · ${ov.byClassification.game ?? 0} games</p>
       </div>
 
       ${renderKpis(ov, priceSym, comp, health)}
@@ -49,12 +50,63 @@ export async function renderHome() {
   `;
 }
 
+function renderEmptyHome(container) {
+  container.innerHTML = `
+    <div class="page home-empty-page" style="max-width: 960px; margin: 0 auto; padding-top: 24px;">
+      <div style="background: var(--bg-layer); border: 1px solid var(--stroke-subtle); border-radius: var(--r-lg); padding: 40px; text-align: center; margin-bottom: 24px;">
+        <div style="width: 64px; height: 64px; border-radius: 50%; background: rgba(17,94,163,0.15); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; color: var(--brand-hover);">
+          <svg style="width: 32px; height: 32px; fill: none; stroke: currentColor; stroke-width: 2;" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="3" ry="3"/>
+            <line x1="9" y1="9" x2="15" y2="15"/>
+            <line x1="15" y1="9" x2="9" y2="15"/>
+          </svg>
+        </div>
+        <h1 style="font-size: 26px; font-weight: 700; color: var(--fg-primary); margin-bottom: 10px;">Welcome to Game ID</h1>
+        <p style="font-size: 15px; color: var(--fg-secondary); max-width: 580px; margin: 0 auto 24px; line-height: 1.6;">
+          Zero-server game ownership intelligence &amp; library analytics. Import your official Epic Games GDPR data export (<span style="font-family:var(--font-mono);font-size:13px;">.zip</span> or <span style="font-family:var(--font-mono);font-size:13px;">.pdf</span>) to explore your complete gaming portfolio.
+        </p>
+        <button class="btn-primary" id="btn-empty-sync" style="font-size: 14px; padding: 10px 24px; display: inline-flex; align-items: center; gap: 8px;">
+          <svg style="width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;" viewBox="0 0 24 24"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Sync Account Data
+        </button>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px;">
+        <div style="background: var(--bg-layer); border: 1px solid var(--stroke-subtle); border-radius: var(--r-md); padding: 20px;">
+          <div style="font-size: 20px; margin-bottom: 8px;">🎮</div>
+          <div style="font-weight: 600; font-size: 15px; color: var(--fg-primary); margin-bottom: 6px;">Unified Library</div>
+          <div style="font-size: 13px; color: var(--fg-secondary); line-height: 1.5;">
+            Browse all your owned titles, editions, DLCs, and platforms with rich filters and search.
+          </div>
+        </div>
+        <div style="background: var(--bg-layer); border: 1px solid var(--stroke-subtle); border-radius: var(--r-md); padding: 20px;">
+          <div style="font-size: 20px; margin-bottom: 8px;">💰</div>
+          <div style="font-weight: 600; font-size: 15px; color: var(--fg-primary); margin-bottom: 6px;">Valuation &amp; Analytics</div>
+          <div style="font-size: 13px; color: var(--fg-secondary); line-height: 1.5;">
+            Track total store worth, free promo games, genre distributions, and playtime insights.
+          </div>
+        </div>
+        <div style="background: var(--bg-layer); border: 1px solid var(--stroke-subtle); border-radius: var(--r-md); padding: 20px;">
+          <div style="font-size: 20px; margin-bottom: 8px;">🔒</div>
+          <div style="font-weight: 600; font-size: 15px; color: var(--fg-primary); margin-bottom: 6px;">100% Client-Side Privacy</div>
+          <div style="font-size: 13px; color: var(--fg-secondary); line-height: 1.5;">
+            Zero telemetry and zero logins. All files are parsed in-memory right in your browser.
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+
+  document.getElementById('btn-empty-sync')?.addEventListener('click', () => {
+    openSyncModal();
+  });
+}
+
 function kpiIcon(icon, cls) {
   return `<div class="kpi-icon ${cls}">${icon}</div>`;
 }
 
 function renderKpis(ov, sym, comp, health) {
-  const cardBg = 'var(--bg-layer)';
   const val = ov.estimatedLibraryValue;
   const fmt = val != null ? `${sym}${Math.round(val).toLocaleString()}` : '—';
 
@@ -163,7 +215,6 @@ function renderValue(ov, sym) {
 }
 
 function renderConfidence(ov) {
-  const total = ov.totalEntitlements;
   return `
     <div class="widget">
       <div class="widget-title">Confidence distribution</div>
@@ -203,7 +254,7 @@ function renderAcquisitions(timeline) {
   const months = timeline.byMonth.slice(-12);
   if (!months.length) return `<div class="widget"><div class="widget-title">Acquisitions</div><p class="text-muted" style="font-size:13px">No dated acquisitions.</p></div>`;
 
-  const max = Math.max(...months.map(m => m.count));
+  const max = Math.max(...months.map(m => m.count), 1);
   const bars = months.map(m => {
     const h = (m.count / max * 100).toFixed(0);
     const label = m.label.slice(2); // strip "20"

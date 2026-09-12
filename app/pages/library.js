@@ -3,11 +3,12 @@
    Matches Figma wireframe: horizontal filter chips, 240px cards, flat hover
    ========================================================================== */
 
-import { getGames } from '../services/loader.js';
+import { getGames, hasAccount } from '../services/loader.js';
 import {
   emptyFilters, facets, applyFilters, sortGames, bestRating,
   SORT_OPTIONS, activeFilterCount,
 } from '../services/filters.js';
+import { openSyncModal } from '../components/sync-modal.js';
 
 let filters = emptyFilters();
 let sortKey = 'title-asc';
@@ -24,17 +25,35 @@ export function formatPrice(val) {
 export async function renderLibrary() {
   const content = document.getElementById('content');
   const games = getGames();
+
+  if (!games || games.length === 0) {
+    content.innerHTML = `
+      <div class="library-page" style="padding: 24px;">
+        <div style="background: var(--bg-layer); border: 1px solid var(--stroke-subtle); border-radius: var(--r-lg); padding: 48px 32px; text-align: center; max-width: 640px; margin: 40px auto;">
+          <div style="font-size: 40px; margin-bottom: 16px;">🎮</div>
+          <h2 style="font-size: 20px; font-weight: 600; color: var(--fg-primary); margin-bottom: 8px;">Your Library is Empty</h2>
+          <p style="font-size: 14px; color: var(--fg-secondary); line-height: 1.5; margin-bottom: 24px;">
+            No account is currently connected. Import your official Epic Games GDPR data export package (.zip or .pdf) to browse, filter, and inspect your entire collection.
+          </p>
+          <button class="btn-primary" id="btn-library-sync" style="font-size: 13px; padding: 8px 20px;">
+            Sync / Import Library
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('btn-library-sync')?.addEventListener('click', () => {
+      openSyncModal();
+    });
+    return;
+  }
+
   const fc = facets(games);
 
   content.innerHTML = `
     <div class="library-page">
       <!-- Filter bar (horizontal chip dropdowns per Figma) -->
       <div class="filter-bar">
-        <select class="filter-chip" id="flt-account" aria-label="Account">
-          <option value="all">Account: All</option>
-          <option value="A">Account A</option>
-          <option value="B">Account B</option>
-        </select>
         <select class="filter-chip" id="flt-confidence" aria-label="Confidence">
           <option value="all">Confidence: All</option>
           <option value="high">High</option>
@@ -150,17 +169,34 @@ function wireEvents(games, fc) {
   // Search (from topbar)
   const searchInput = document.getElementById('topbar-search');
   const doSearch = () => {
-    filters.search = searchInput.value;
+    filters.search = searchInput ? searchInput.value : '';
     page = 1;
     renderResults(games, fc);
   };
-  searchInput?.addEventListener('input', doSearch);
-  searchInput.value = filters.search;
+  if (searchInput) {
+    searchInput.addEventListener('input', debounce(doSearch, 200));
+  }
+
+  // Top filter chips
+  document.getElementById('flt-confidence')?.addEventListener('change', e => {
+    filters.confidence = e.target.value === 'all' ? null : e.target.value;
+    page = 1;
+    renderResults(games, fc);
+  });
+  document.getElementById('flt-store')?.addEventListener('change', e => {
+    filters.stores = e.target.value === 'all' ? [] : [e.target.value];
+    page = 1;
+    renderResults(games, fc);
+  });
+  document.getElementById('flt-type')?.addEventListener('change', e => {
+    filters.classifications = e.target.value === 'all' ? [] : [e.target.value];
+    page = 1;
+    renderResults(games, fc);
+  });
 
   // Sort
   document.getElementById('sort')?.addEventListener('change', e => {
     sortKey = e.target.value;
-    page = 1;
     renderResults(games, fc);
   });
 
@@ -168,36 +204,23 @@ function wireEvents(games, fc) {
   document.querySelectorAll('.view-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       view = btn.dataset.view;
-      document.querySelectorAll('.view-btn').forEach(b =>
-        b.classList.toggle('active', b.dataset.view === view));
+      document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b === btn));
       renderResults(games, fc);
     });
   });
 
-  // Filter chips
-  const chipMap = {
-    'flt-account': v => { filters.account = v === 'all' ? null : v; },
-    'flt-confidence': v => { filters.confidences = v === 'all' ? [] : [v]; },
-    'flt-store': v => { filters.stores = v === 'all' ? [] : [v]; },
-    'flt-type': v => { filters.classifications = v === 'all' ? [] : [v]; },
-  };
-  Object.entries(chipMap).forEach(([id, fn]) => {
-    document.getElementById(id)?.addEventListener('change', e => {
-      fn(e.target.value);
-      page = 1;
-      renderResults(games, fc);
-    });
-  });
-
-  // Filter sidebar checkboxes
+  // Sidebar checkbox filters
   const sidebar = document.getElementById('filters-sidebar');
   sidebar?.addEventListener('change', e => {
     const el = e.target;
-    if (el.dataset.filter && el.type === 'checkbox') {
+    if (el.dataset.filter) {
       const key = el.dataset.filter;
-      const set = new Set(filters[key]);
-      el.checked ? set.add(el.value) : set.delete(el.value);
-      filters[key] = [...set];
+      const val = el.value;
+      if (el.checked) {
+        if (!filters[key].includes(val)) filters[key].push(val);
+      } else {
+        filters[key] = filters[key].filter(x => x !== val);
+      }
       page = 1;
       renderResults(games, fc);
     }
@@ -224,11 +247,15 @@ function wireEvents(games, fc) {
     filters = emptyFilters();
     sidebar?.querySelectorAll('input[type="checkbox"]').forEach(cb => { cb.checked = false; });
     sidebar?.querySelectorAll('input[type="number"]').forEach(i => { i.value = ''; });
-    searchInput.value = '';
-    document.getElementById('flt-account').value = 'all';
-    document.getElementById('flt-confidence').value = 'all';
-    document.getElementById('flt-store').value = 'all';
-    document.getElementById('flt-type').value = 'all';
+    if (searchInput) searchInput.value = '';
+    const fltAccount = document.getElementById('flt-account');
+    if (fltAccount) fltAccount.value = 'all';
+    const fltConf = document.getElementById('flt-confidence');
+    if (fltConf) fltConf.value = 'all';
+    const fltStore = document.getElementById('flt-store');
+    if (fltStore) fltStore.value = 'all';
+    const fltType = document.getElementById('flt-type');
+    if (fltType) fltType.value = 'all';
     page = 1;
     renderResults(games, fc);
   });
@@ -236,12 +263,7 @@ function wireEvents(games, fc) {
 
 /* -------------------------------------------------------------- results */
 function renderResults(games, fc) {
-  // Apply account filter from chip
   let filtered = games;
-  if (filters.account) {
-    filtered = filtered.filter(g => g.raw?.account === filters.account || g._account === filters.account);
-  }
-
   filtered = applyFilters(filtered, filters);
   filtered = sortGames(filtered, sortKey);
 
@@ -266,14 +288,16 @@ function renderResults(games, fc) {
         <p>No titles match your filters.</p>
         <p style="font-size:12px;color:var(--fg-tertiary)">Try adjusting or clearing filters.</p>
       </div>`;
-    document.getElementById('pagination-area').innerHTML = '';
+    const pagArea = document.getElementById('pagination-area');
+    if (pagArea) pagArea.innerHTML = '';
     return;
   }
 
   grid.innerHTML = pageItems.map(card).join('');
 
   // Pagination
-  document.getElementById('pagination-area').innerHTML = renderPagination(total, totalPages, start, PAGE_SIZE);
+  const pagArea = document.getElementById('pagination-area');
+  if (pagArea) pagArea.innerHTML = renderPagination(total, totalPages, start, PAGE_SIZE);
 
   // Wire card clicks
   grid.querySelectorAll('.game-card').forEach(el => {
@@ -289,104 +313,87 @@ function renderResults(games, fc) {
   });
 
   // Wire pagination buttons
-  document.querySelectorAll('#pagination-area .page-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      page = parseInt(btn.dataset.page, 10);
-      renderResults(games, fc);
-      document.getElementById('library-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
-  });
+  wirePagination(total, totalPages, games, fc);
 }
 
-/* --------------------------------------------------------- card renderer */
-function card(game) {
-  const rating = bestRating(game);
-  const sym = game.currency === 'USD' ? '$' : '₹';
-  const price = game.isFree
-    ? '<span class="price-tag price-free">Free</span>'
-    : game.currentPrice != null
-      ? `<span class="price-tag">${sym}${Math.round(game.currentPrice).toLocaleString()}</span>`
-      : '<span class="price-tag price-unknown">—</span>';
+function card(g) {
+  const rating = bestRating(g);
+  const isNeedsVerif = g.title === 'Needs Manual Verification';
+  const displayTitle = isNeedsVerif
+    ? '<span style="color:var(--fg-quaternary);font-style:italic">Needs Manual Verification</span>'
+    : escHtml(g.title);
 
-  const platform = game.platforms?.[0] || game.marketplace || 'PC';
-  const genres = game.genres?.length ? game.genres.slice(0, 3).join(' · ') : '—';
-  const conf = (game.confidence || 'medium').toLowerCase();
+  const ratingHtml = rating
+    ? `<span class="rating-badge">${rating.source === 'Steam' ? '👍' : '★'} ${rating.score}</span>`
+    : '';
 
-  // catalog icon SVG
-  const catalogIcon = `<svg class="game-meta-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>`;
+  const confBadge = `<span class="conf-dot conf-${(g.confidence || 'medium').toLowerCase()}" title="Confidence: ${g.confidence || 'Medium'}"></span>`;
+  const priceFormatted = g.isFree ? 'Free' : (g.currentPrice != null ? `$${Math.round(g.currentPrice)}` : (g.msrp != null ? `$${Math.round(g.msrp)}` : ''));
 
   return `
-    <article class="game-card card" data-id="${escAttr(game.id)}" tabindex="0" role="button">
-      <div class="game-cover">
-        ${!game.cover ? `<div class="cover-fallback">${game.title ? game.title[0].toUpperCase() : '?'}</div>` : ''}
-        ${game.cover ? `<img class="cover-img" src="${escAttr(game.cover)}" alt="" loading="lazy">` : ''}
-        ${rating != null ? `<span class="rating-badge">${Math.round(rating)}</span>` : ''}
-        <span class="conf-dot conf-${conf}" title="${conf} extraction confidence"></span>
-      </div>
-      <div class="game-info">
-        <h4 class="game-title">${escHtml(game.title)}</h4>
-        <p class="game-meta">
-          ${catalogIcon}
-          <span>${escHtml(genres)}</span>
-        </p>
-        <div class="game-footer">
-          <span class="game-platform">${escHtml(platform)}</span>
-          ${game.title === 'Needs Manual Verification' ? '<span class="unmatched-tag">Needs manual verification</span>' : price}
+    <article class="game-card" data-id="${escAttr(g.id)}" tabindex="0" role="button" aria-label="${escAttr(g.title)}">
+      <div class="card-cover">
+        <img src="${escAttr(g.cover || 'assets/placeholders/cover.svg')}"
+             alt="${escAttr(g.title)}"
+             loading="lazy"
+             onerror="this.src='assets/placeholders/cover.svg';">
+        <div class="card-badges">
+          ${confBadge}
+          ${ratingHtml}
         </div>
+      </div>
+      <div class="card-body">
+        <h3 class="card-title" title="${escAttr(g.title)}">${displayTitle}</h3>
+        <p class="card-meta">
+          <span>${escHtml(g.developer || g.publisher || g.marketplace || 'Epic Games')}</span>
+          ${priceFormatted ? `<span>${priceFormatted}</span>` : ''}
+        </p>
       </div>
     </article>
   `;
 }
 
-/* ----------------------------------------------------------- pagination */
 function renderPagination(total, totalPages, start, pageSize) {
   if (totalPages <= 1) return '';
-
-  const end = Math.min(start + pageSize, total);
-  const pages = pageButtons(page, totalPages);
-
+  const from = start + 1;
+  const to = Math.min(start + pageSize, total);
   return `
-    <div class="pagination-bar">
-      <div class="pagination-info">${start + 1}–${end} of ${total}</div>
-      <div class="pagination-controls">
-        <select class="page-size-select" aria-label="Items per page">
-          <option value="25">25 per page</option>
-          <option value="50" selected>50 per page</option>
-          <option value="100">100 per page</option>
-          <option value="200">200 per page</option>
-        </select>
-        ${pages}
+    <div class="pagination">
+      <span class="pagination-info">Showing ${from}&ndash;${to} of ${total}</span>
+      <div class="pagination-buttons">
+        <button class="pag-btn" id="pag-prev" ${page <= 1 ? 'disabled' : ''}>&larr; Prev</button>
+        <span class="pag-current">Page ${page} of ${totalPages}</span>
+        <button class="pag-btn" id="pag-next" ${page >= totalPages ? 'disabled' : ''}>Next &rarr;</button>
       </div>
     </div>
   `;
 }
 
-function pageButtons(current, total) {
-  const range = 7;
-  let startP = Math.max(1, current - Math.floor(range / 2));
-  let endP = Math.min(total, startP + range - 1);
-  if (endP - startP < range - 1) startP = Math.max(1, endP - range + 1);
-
-  const btns = [];
-
-  if (startP > 1) {
-    btns.push(`<button class="page-btn" data-page="1">1</button>`);
-    if (startP > 2) btns.push(`<span class="page-btn" style="cursor:default;border-color:transparent">&hellip;</span>`);
-  }
-
-  for (let i = startP; i <= endP; i++) {
-    btns.push(`<button class="page-btn${i === current ? ' active' : ''}" data-page="${i}">${i}</button>`);
-  }
-
-  if (endP < total) {
-    if (endP < total - 1) btns.push(`<span class="page-btn" style="cursor:default;border-color:transparent">&hellip;</span>`);
-    btns.push(`<button class="page-btn" data-page="${total}">${total}</button>`);
-  }
-
-  return btns.join('');
+function wirePagination(total, totalPages, games, fc) {
+  document.getElementById('pag-prev')?.addEventListener('click', () => {
+    if (page > 1) {
+      page--;
+      renderResults(games, fc);
+      document.querySelector('.library-results')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
+  document.getElementById('pag-next')?.addEventListener('click', () => {
+    if (page < totalPages) {
+      page++;
+      renderResults(games, fc);
+      document.querySelector('.library-results')?.scrollIntoView({ behavior: 'smooth' });
+    }
+  });
 }
 
-/* ------------------------------------------------------------- helpers */
+function debounce(fn, ms) {
+  let timer;
+  return (...args) => {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn(...args), ms);
+  };
+}
+
 function escHtml(s) {
   return String(s ?? '')
     .replace(/&/g, '&amp;').replace(/</g, '&lt;')
@@ -394,5 +401,6 @@ function escHtml(s) {
 }
 
 function escAttr(s) {
-  return escHtml(s).replace(/'/g, '&#39;');
+  return String(s ?? '')
+    .replace(/&/g, '&amp;').replace(/"/g, '&quot;');
 }

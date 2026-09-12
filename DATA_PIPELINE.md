@@ -168,7 +168,7 @@ from the HTML-stripped body, which lays out as `Description: / Publisher: / Pric
 under `HERE'S WHAT YOU ORDERED:`.
 
 **🔴 THIS STAGE IS NO LONGER RE-RUNNABLE. The sources are gone — verified 2026-08-23.**
-`--eml-dir` used to default to `C:/Users/Sufiyan/AppData/Local/Temp/gid_extract`. That directory
+`--eml-dir` used to default to `<temp_dir>/gid_extract`. That directory
 no longer exists, and `find . -iname "*.eml"` returns nothing anywhere in the project. The temp
 sweep this document warned about has already happened. The default is now
 `data/source/receipts/`, matching the convention `data/source/account{A,B}.transactions.txt`

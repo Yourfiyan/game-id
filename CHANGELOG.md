@@ -33,7 +33,7 @@ there was no read-back available at all.
   **Corrected the claim rather than manufacturing an output no consumer wants** — the corpus is 226
   records, small enough that precomputing analytics buys nothing.
 - **`TODO.md` C2 ✅ — its premise had already expired.** The item warned that the receipt `.eml`
-  sources sat in `C:/Users/Sufiyan/AppData/Local/Temp/gid_extract` and would not survive a temp sweep.
+  sources sat in `<temp_dir>/gid_extract` and would not survive a temp sweep.
   **The sweep already happened.** No `.eml` survives anywhere, so the recommended file-move was never
   executable. What that costs, measured: those 14 orders / 32 line items are the **sole source of
   `ownership.purchasePrice`**, populated on exactly **32 of 226** records (14.2%) and **1:1 in both

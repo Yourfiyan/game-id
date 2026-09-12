@@ -22,7 +22,7 @@ Body structure (HTML stripped):
     TOTAL [...]
 
 SOURCE FILES ARE GONE -- verified 2026-08-23. This script's --eml-dir default
-used to point at C:/Users/Sufiyan/AppData/Local/Temp/gid_extract. That directory
+used to point at temp/gid_extract. That directory
 no longer exists, no .eml file survives anywhere in the project, and the temp
 sweep TODO.md C2 warned about has therefore already happened. Stage 2 is no
 longer re-runnable from source.

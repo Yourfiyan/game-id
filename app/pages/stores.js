@@ -4,6 +4,7 @@
 
 import { getGames } from '../services/loader.js';
 import { storeDistribution } from '../services/analytics.js';
+import { openSyncModal } from '../components/sync-modal.js';
 
 function esc(s) { return String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -24,10 +25,34 @@ const STORES = [
 
 export async function renderStores() {
   const games = getGames();
+  const content = document.getElementById('content');
+
+  if (!games || games.length === 0) {
+    content.innerHTML = `
+      <div class="page stores-page">
+        <div class="page-header">
+          <h1 class="page-title">Stores</h1>
+          <p class="page-subtitle">Storefront distribution &amp; marketplace coverage</p>
+        </div>
+        <div style="background: var(--bg-layer); border: 1px solid var(--stroke-subtle); border-radius: var(--r-lg); padding: 48px 32px; text-align: center; max-width: 640px; margin: 32px auto;">
+          <div style="font-size: 40px; margin-bottom: 16px;">🏪</div>
+          <h2 style="font-size: 20px; font-weight: 600; color: var(--fg-primary); margin-bottom: 8px;">No Store Data Available</h2>
+          <p style="font-size: 14px; color: var(--fg-secondary); line-height: 1.5; margin-bottom: 24px;">
+            Sync your game account data to inspect ownership across Epic Games Store, Steam, GOG, and other connected gaming marketplaces.
+          </p>
+          <button class="btn-primary" id="stores-empty-sync" style="font-size: 13px; padding: 8px 20px;">
+            Sync / Import Data
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('stores-empty-sync')?.addEventListener('click', () => openSyncModal());
+    return;
+  }
+
   const storeDist = storeDistribution(games);
   const storeMap = Object.fromEntries(storeDist.distribution.map(s => [s.label.toLowerCase().replace(/[^a-z0-9]/g,''), s]));
-
-  const priceSym = games[0]?.currency === 'USD' ? '$' : '₹';
 
   // Top-rated per store
   const storeRated = {};
@@ -44,7 +69,7 @@ export async function renderStores() {
   const total = games.length;
   const unenriched = games.filter(g => g.title === 'Needs Manual Verification').length;
 
-  document.getElementById('content').innerHTML = `
+  content.innerHTML = `
     <div class="page">
       <div class="page-header">
         <h1 class="page-title">Stores</h1>
@@ -82,7 +107,8 @@ export async function renderStores() {
         <div class="widget-title">Store distribution summary</div>
         <div class="distribution-list" style="max-width:560px">
           ${storeDist.distribution.slice(0, 10).map(s => {
-            const pct = (s.count / storeDist.distribution[0].count * 100).toFixed(0);
+            const max = storeDist.distribution[0]?.count || 1;
+            const pct = (s.count / max * 100).toFixed(0);
             return `
               <div class="distribution-item">
                 <span class="distribution-label">${esc(s.label)}</span>
