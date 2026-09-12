@@ -109,6 +109,7 @@ function kpiIcon(icon, cls) {
 function renderKpis(ov, sym, comp, health) {
   const val = ov.estimatedLibraryValue;
   const fmt = val != null ? `${sym}${Math.round(val).toLocaleString()}` : '—';
+  const savingsFmt = ov.totalSavings != null && ov.totalSavings > 0 ? `${sym}${Math.round(ov.totalSavings).toLocaleString()}` : null;
 
   return `
     <div class="kpi-grid">
@@ -117,23 +118,23 @@ function renderKpis(ov, sym, comp, health) {
         <div class="kpi-body">
           <div class="kpi-label">Games</div>
           <div class="kpi-value">${ov.totalGames}</div>
-          <div class="kpi-sub">${ov.freeGames} free · ${ov.paidGames} priced</div>
+          <div class="kpi-sub">${ov.freeClaimsCount || 0} free claims · ${ov.freeGames} F2P</div>
         </div>
       </div>
       <div class="kpi-card">
         ${kpiIcon('💰', 'success')}
         <div class="kpi-body">
-          <div class="kpi-label">Store value</div>
-          <div class="kpi-value">${fmt}</div>
-          <div class="kpi-sub">${ov.valueCoverage.known}/${ov.totalGames} known</div>
+          <div class="kpi-label">Total Store Value</div>
+          <div class="kpi-value" style="color:var(--status-success-fg);">${fmt}</div>
+          <div class="kpi-sub">${savingsFmt ? `Saved ${savingsFmt} in promos` : `${ov.valueCoverage.known}/${ov.totalGames} priced`}</div>
         </div>
       </div>
       <div class="kpi-card">
-        ${kpiIcon('✅', 'success')}
+        ${kpiIcon('🎁', 'info')}
         <div class="kpi-body">
-          <div class="kpi-label">Confidence</div>
-          <div class="kpi-value">${ov.confidence.high + ov.confidence.medium}</div>
-          <div class="kpi-sub">${ov.confidence.high} high · ${ov.confidence.medium} medium · ${ov.confidence.low} low</div>
+          <div class="kpi-label">Free Promo Claims</div>
+          <div class="kpi-value">${ov.freeClaimsCount || ov.paidGames}</div>
+          <div class="kpi-sub">100% discount acquisitions</div>
         </div>
       </div>
       <div class="kpi-card">
@@ -201,14 +202,17 @@ function renderPlaytime(comp) {
 function renderValue(ov, sym) {
   const total = ov.estimatedLibraryValue;
   const fmt = total != null ? `${sym}${Math.round(total).toLocaleString()}` : '—';
+  const spent = ov.totalAmountPaid ? `${sym}${Math.round(ov.totalAmountPaid).toLocaleString()}` : `${sym}0`;
+  const saved = ov.totalSavings ? `${sym}${Math.round(ov.totalSavings).toLocaleString()}` : fmt;
+
   return `
     <div class="widget">
-      <div class="widget-title">Library value</div>
+      <div class="widget-title">Portfolio Valuation</div>
       <div class="data-list">
-        <li><span>Current store value</span><span class="text-brand">${fmt}</span></li>
-        <li><span>MSRP total</span><span>${ov.msrp.total != null ? `${sym}${Math.round(ov.msrp.total).toLocaleString()}` : '—'}</span></li>
-        <li><span>MSRP median</span><span>${ov.msrp.median != null ? `${sym}${Math.round(ov.msrp.median).toLocaleString()}` : '—'}</span></li>
-        <li><span>Value coverage</span><span>${ov.valueCoverage.known}/${ov.totalGames}</span></li>
+        <li><span>Total Store List Value</span><span class="text-brand" style="color:var(--status-success-fg);font-weight:700;">${fmt}</span></li>
+        <li><span>Total Out-of-Pocket Spend</span><span>${spent}</span></li>
+        <li><span>Total Promo Savings</span><span style="color:var(--brand-hover);font-weight:600;">${saved}</span></li>
+        <li><span>Valuation Coverage</span><span>${ov.valueCoverage.known}/${ov.totalGames} titles priced</span></li>
       </div>
     </div>
   `;

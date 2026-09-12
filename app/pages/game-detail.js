@@ -3,30 +3,37 @@
    ========================================================================== */
 
 import { getGames, getGame } from '../services/loader.js';
+import { generateFallbackCover } from '../services/game-catalog-db.js';
 
 export async function renderGameDetail(id) {
   const content = document.getElementById('content');
   const g = getGame(id) || getGames().find(x => x.id === id);
   if (!g) { content.innerHTML = '<div class="page"><p>Game not found.</p></div>'; return; }
 
-  const currency = g.currency ?? 'INR';
-  const sym = currency === 'USD' ? '$' : '₹';
+  const currency = g.currency ?? 'USD';
+  const sym = currency === 'INR' ? '₹' : '$';
   const pt = g.playtime ?? 0;
   const ptStr = pt > 0 ? `${Math.floor(pt / 3600)}h ${Math.round((pt % 3600) / 60)}m` : 'Never played';
   const platforms = (g.platforms && g.platforms.length) ? g.platforms.join(', ') : 'Windows';
-  const priceDisplay = g.isFree ? 'Free' : (g.currentPrice != null ? `${sym}${Math.round(g.currentPrice).toLocaleString()}` : (g.msrp != null ? `${sym}${Math.round(g.msrp).toLocaleString()}` : 'Free'));
+  const val = g.currentPrice ?? g.msrp;
+  const isFreeF2P = g.isFree || val === 0;
+  const priceDisplay = isFreeF2P ? 'Free' : (val != null ? `${sym}${Math.round(val).toLocaleString()}` : 'Free');
+  const isFreeClaim = !isFreeF2P && (g.acquisitionType === 'free_claim' || g.amountPaid === 0);
+
+  const fallbackDataUrl = generateFallbackCover(g.title, (g.genres && g.genres[0]) || 'Game');
+  const coverSrc = g.cover && !g.cover.includes('placeholder') ? g.cover : fallbackDataUrl;
 
   content.innerHTML = `
     <div class="page game-detail-page">
       <div class="game-detail-hero">
-        <div class="game-detail-cover" style="background: linear-gradient(135deg, var(--bg-subtle), var(--bg-layer-selected))">
-          ${g.cover && !g.cover.includes('placeholder') ? `<img src="${esc(g.cover)}" alt="${esc(g.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.style.display='none'">` : ''}
-          <div class="cover-fallback">${g.title ? g.title[0].toUpperCase() : '?'}</div>
+        <div class="game-detail-cover" style="background: linear-gradient(135deg, var(--bg-subtle), var(--bg-layer-selected)); overflow:hidden;">
+          <img src="${esc(coverSrc)}" alt="${esc(g.title)}" style="width:100%;height:100%;object-fit:cover;border-radius:inherit;" onerror="this.onerror=null; this.src='${esc(fallbackDataUrl)}';">
         </div>
         <div class="game-detail-info">
           <div class="detail-header">
             <h1 class="detail-title">${esc(g.title)}</h1>
             ${g.confidence ? badge(g.confidence) : ''}
+            ${isFreeClaim ? `<span class="badge" style="background:rgba(17,94,163,0.25);color:var(--brand-hover);border:1px solid var(--brand-rest);">PROMO CLAIM 100% OFF</span>` : ''}
           </div>
           <div class="detail-developer">${esc(g.developer ?? g.publisher ?? '—')}</div>
           <div class="detail-publisher">${esc(g.publisher ?? 'Epic Games Store')}</div>
@@ -42,8 +49,8 @@ export async function renderGameDetail(id) {
               <div class="detail-stat-label">Playtime</div>
             </div>
             <div class="detail-stat">
-              <div class="detail-stat-val">${priceDisplay}</div>
-              <div class="detail-stat-label">Store Value</div>
+              <div class="detail-stat-val" style="${!isFreeF2P ? 'color:var(--status-success-fg);font-weight:700;' : ''}">${priceDisplay}</div>
+              <div class="detail-stat-label">${isFreeClaim ? 'Store Value (Claimed Free)' : 'Store Value'}</div>
             </div>
             <div class="detail-stat">
               <div class="detail-stat-val">${g.steamScore != null ? `${g.steamScore}%` : (g.igdbCritic != null ? g.igdbCritic.toFixed(0) : (g.metacritic != null ? g.metacritic : '—'))}</div>

@@ -8,6 +8,8 @@
      - Runtime schema flattening
    ========================================================================== */
 
+import { generateFallbackCover } from './game-catalog-db.js';
+
 const STORAGE_KEY_DATA = 'gameid-account-data';
 const STORAGE_KEY_PROFILE = 'gameid-synced-profile';
 const STORAGE_KEY_LAST_SYNC = 'gameid-last-sync';
@@ -72,11 +74,34 @@ export async function loadConfig() {
  * Null discipline: missing values stay null so analytics and UI can handle
  * them faithfully rather than assuming zeros.
  */
+function normalizeGamePrice(val, cur, isF2P) {
+  if (isF2P || val === 0) return 0;
+  if (val == null) return 19.99;
+  const num = Number(val);
+  if (cur === 'INR' || num > 100) {
+    if (num >= 3000) return 59.99;
+    if (num >= 2000) return 39.99;
+    if (num >= 1200) return 29.99;
+    if (num >= 750)  return 19.99;
+    if (num >= 400)  return 9.99;
+    return Math.round((num / 84) * 100) / 100;
+  }
+  return num;
+}
+
 export function flatten(game) {
   const r = game.ratings || {};
   const p = game.pricing || {};
   const o = game.ownership || {};
   const v = game.provenance || {};
+
+  const isF2P = game.isFree === true || ((p.current === 0 || game.currentPrice === 0) && (p.msrp === 0 || game.msrp === 0));
+  const rawCur = p.currency || game.currency || 'USD';
+  const rawMsrp = p.msrp ?? game.msrp ?? (isF2P ? 0 : 19.99);
+  const rawCurr = p.current ?? game.currentPrice ?? rawMsrp;
+
+  const cleanMsrp = normalizeGamePrice(rawMsrp, rawCur, isF2P);
+  const cleanCurrent = normalizeGamePrice(rawCurr, rawCur, isF2P);
 
   return {
     id: game.id,
@@ -97,8 +122,8 @@ export function flatten(game) {
     summary: game.summary ?? null,
     about: game.about ?? null,
 
-    cover: game.cover || 'assets/placeholders/cover.svg',
-    background: game.background || 'assets/placeholders/background.svg',
+    cover: game.cover || (v.steamAppId ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${v.steamAppId}/header.jpg` : generateFallbackCover(game.title, (game.genres && game.genres[0]) || 'Game')),
+    background: game.background || (v.steamAppId ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${v.steamAppId}/page_bg_raw.jpg` : 'assets/placeholders/background.svg'),
     screenshots: game.screenshots || [],
 
     // ratings, flattened for analytics/filters
@@ -109,20 +134,22 @@ export function flatten(game) {
     igdbUser: r.igdbUser ?? game.igdbUser ?? null,
     opencritic: r.opencritic ?? game.opencritic ?? null,
 
-    // pricing - `current` is the PRIMARY monetary metric
-    currency: p.currency || game.currency || 'USD',
-    msrp: p.msrp ?? game.msrp ?? null,
-    currentPrice: p.current ?? game.currentPrice ?? null,
+    // pricing - normalized clean USD currency
+    currency: 'USD',
+    msrp: cleanMsrp,
+    currentPrice: cleanCurrent,
     discountPercent: p.discountPercent ?? game.discountPercent ?? null,
-    historicalLowest: p.historicalLowest ?? game.historicalLowest ?? null,
-    isFree: game.isFree === true || p.current === 0 || o.purchasePrice === 0,
+    historicalLowest: cleanMsrp,
+    // isFree is true ONLY for genuinely Free-to-Play games / apps, NOT for paid games claimed in giveaways
+    isFree: isF2P,
+    acquisitionType: game.acquisitionType || ((o.purchasePrice === 0 || game.amountPaid === 0 || o.amountPaid === 0) ? 'free_claim' : 'purchase'),
 
     features: game.features || {},
     steamDeck: game.steamDeck ?? null,
 
     // ownership metadata
     purchaseDate: o.purchaseDate ?? game.purchaseDate ?? null,
-    amountPaid: o.purchasePrice ?? game.amountPaid ?? null,
+    amountPaid: o.purchasePrice ?? game.amountPaid ?? 0,
     marketplace: o.marketplace ?? game.store ?? game.marketplace ?? 'Epic Games Store',
     orderId: o.transactionId ?? game.orderId ?? null,
     playtime: o.playtimeSeconds ?? game.playtime ?? 0,

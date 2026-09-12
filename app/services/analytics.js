@@ -49,22 +49,30 @@ export function overview(games) {
   const byClass = {};
   for (const g of games) byClass[g.classification] = (byClass[g.classification] || 0) + 1;
 
-  const free = playable.filter(g => g.isFree === true).length;
-  // "paid" = the store listed a non-zero price for it. Note the whole library
-  // was acquired at zero cost (giveaways/sales), so this is list value, not spend.
-  const paid = playable.filter(g => (g.msrp ?? 0) > 0).length;
+  // True F2P games (e.g. Fortnite, Fall Guys, Aimlabs)
+  const freeF2P = playable.filter(g => g.isFree === true || ((g.currentPrice ?? 0) === 0 && (g.msrp ?? 0) === 0)).length;
+  // Paid / Valued games (have store list price)
+  const priced = playable.filter(g => (g.currentPrice ?? 0) > 0 || (g.msrp ?? 0) > 0).length;
+  // Free promotional giveaway claims
+  const freeClaims = playable.filter(g => !g.isFree && ((g.currentPrice ?? 0) > 0 || (g.msrp ?? 0) > 0) && ((g.amountPaid ?? 0) === 0 || g.acquisitionType === 'free_claim')).length;
 
-  const currentValues = playable.map(g => g.currentPrice).filter(v => v != null);
-  const msrpValues = playable.map(g => g.msrp).filter(v => v != null);
+  const currentValues = playable.map(g => g.currentPrice ?? g.msrp).filter(v => v != null && v > 0);
+  const msrpValues = playable.map(g => g.msrp ?? g.currentPrice).filter(v => v != null && v > 0);
+
+  const totalCurrentVal = currentValues.reduce((a, b) => a + b, 0);
+  const totalAmountPaid = playable.map(g => g.amountPaid).filter(v => v != null).reduce((a, b) => a + b, 0);
 
   return {
     totalEntitlements: games.length,
     totalGames: playable.length,
     byClassification: byClass,
-    freeGames: free,
-    paidGames: paid,
-    // PRIMARY monetary metric: current store value
-    estimatedLibraryValue: currentValues.reduce((a, b) => a + b, 0),
+    freeGames: freeF2P,
+    freeClaimsCount: freeClaims,
+    paidGames: priced,
+    // PRIMARY monetary metric: Total store list value of the portfolio
+    estimatedLibraryValue: totalCurrentVal,
+    totalAmountPaid: totalAmountPaid,
+    totalSavings: Math.max(0, totalCurrentVal - totalAmountPaid),
     valueCoverage: { known: currentValues.length, unknown: playable.length - currentValues.length },
     msrp: {
       total: msrpValues.reduce((a, b) => a + b, 0),
@@ -343,19 +351,21 @@ export function confidenceDistribution(games) {
 /* ---------------------------------------------------------------- price */
 export function priceDistribution(games) {
   const playable = games.filter(isGame);
+  const getPrice = g => g.currentPrice ?? g.msrp ?? 0;
+
   const buckets = [
-    { label: 'Free',       count: playable.filter(g => g.isFree || (g.currentPrice ?? 0) === 0).length },
-    { label: '< $5',       count: playable.filter(g => (g.currentPrice ?? 0) > 0 && g.currentPrice < 5).length },
-    { label: '$5–$14',     count: playable.filter(g => (g.currentPrice ?? 0) >= 5 && g.currentPrice < 15).length },
-    { label: '$15–$29',    count: playable.filter(g => (g.currentPrice ?? 0) >= 15 && g.currentPrice < 30).length },
-    { label: '$30–$59',    count: playable.filter(g => (g.currentPrice ?? 0) >= 30 && g.currentPrice < 60).length },
-    { label: '$60+',       count: playable.filter(g => (g.currentPrice ?? 0) >= 60).length },
+    { label: 'F2P / $0',   count: playable.filter(g => g.isFree && getPrice(g) === 0).length },
+    { label: '< $10',      count: playable.filter(g => getPrice(g) > 0 && getPrice(g) < 10).length },
+    { label: '$10–$19',    count: playable.filter(g => getPrice(g) >= 10 && getPrice(g) < 20).length },
+    { label: '$20–$39',    count: playable.filter(g => getPrice(g) >= 20 && getPrice(g) < 40).length },
+    { label: '$40–$59',    count: playable.filter(g => getPrice(g) >= 40 && getPrice(g) < 60).length },
+    { label: '$60+',       count: playable.filter(g => getPrice(g) >= 60).length },
   ];
-  const known = playable.filter(g => g.currentPrice != null);
+  const known = playable.filter(g => getPrice(g) != null);
   return {
     items: buckets,
     unknown: playable.length - known.length,
-    currency: known.length ? known[0].currency : 'USD',
+    currency: known.length ? (known[0].currency || 'USD') : 'USD',
   };
 }
 

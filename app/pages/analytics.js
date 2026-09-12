@@ -228,8 +228,8 @@ function drawScatter(canvasId, points) {
     return;
   }
 
-  const maxHours = Math.max(...points.map(p => p.hours), 1);
-  const maxPrice = Math.max(...points.map(p => p.price), 100);
+  const maxHours = Math.max(...points.map(p => p.playtime ?? p.hours ?? 0), 1);
+  const maxPrice = Math.max(...points.map(p => p.price ?? 0), 100);
   const pad = 36;
 
   // Grid
@@ -243,8 +243,10 @@ function drawScatter(canvasId, points) {
 
   // Points
   points.forEach(p => {
-    const x = pad + (p.hours / maxHours) * (w - pad * 2);
-    const y = (h - pad) - (p.price / maxPrice) * (h - pad * 2);
+    const pt = p.playtime ?? p.hours ?? 0;
+    const pr = p.price ?? 0;
+    const x = pad + (pt / maxHours) * (w - pad * 2);
+    const y = (h - pad) - (pr / maxPrice) * (h - pad * 2);
     ctx.beginPath();
     ctx.arc(x, y, 4, 0, Math.PI * 2);
     ctx.fillStyle = TK.brandHover;

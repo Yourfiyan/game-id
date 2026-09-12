@@ -4,6 +4,8 @@
    Uses bundled JSZip + PDF.js to extract account metadata and game data.
    ========================================================================== */
 
+import { lookupGame, generateFallbackCover, normalizeTitle } from './game-catalog-db.js';
+
 /**
  * Extracts plain text from a PDF Uint8Array or ArrayBuffer using PDF.js.
  */
@@ -436,39 +438,120 @@ function finalizeResult(raw, sourceName) {
     extractedAt: new Date().toISOString(),
   };
 
-  // Formatted Games
+  // Formatted Games & Items
   const acctPrefix = (acct.accountId || 'epic').slice(0, 8);
-  const games = apps.map((a, idx) => {
+  const seenTitles = new Set();
+  const rawItemList = [];
+
+  // 1. Gather all titles from consentedApps
+  apps.forEach(a => {
     const title = (a.title || '').trim();
+    if (!title) return;
+    const key = normalizeTitle(title);
+    if (!seenTitles.has(key)) {
+      seenTitles.add(key);
+      rawItemList.push({
+        title,
+        organization: a.organization,
+        createdAt: a.createdAt,
+        updatedAt: a.updatedAt,
+        consentedScopes: a.consentedScopes,
+        privacyPolicy: a.privacyPolicy,
+        supportEmail: a.supportEmail,
+        source: 'Consented 3rd-party App',
+      });
+    }
+  });
+
+  // 2. Also gather any additional games from entitlements (if present)
+  entitlements.forEach(e => {
+    const title = (e.productName || '').trim();
+    if (!title || title.length < 2) return;
+    const key = normalizeTitle(title);
+    if (!seenTitles.has(key)) {
+      seenTitles.add(key);
+      rawItemList.push({
+        title,
+        organization: null,
+        createdAt: e.grantDate,
+        updatedAt: null,
+        consentedScopes: [],
+        privacyPolicy: null,
+        supportEmail: null,
+        source: 'Account Entitlement',
+        entitlementId: e.entitlementId,
+      });
+    }
+  });
+
+  const games = rawItemList.map((item, idx) => {
+    const title = item.title;
     const slug = title.toLowerCase().replace(/[^\w]+/g, '_').replace(/^_+|_+$/g, '');
     const cls = classifyTitle(title);
+    const enriched = lookupGame(title);
+
+    const isF2P = enriched ? (enriched.isFree === true) : (cls === 'app' || cls === 'subscription' || cls === 'demo');
+    const msrp = enriched?.msrp != null ? enriched.msrp : (isF2P ? 0.0 : 19.99);
+    const currentPrice = enriched?.current != null ? enriched.current : msrp;
+    const currency = enriched?.currency || 'USD';
+    const genres = enriched?.genres?.length ? enriched.genres : (cls === 'game' ? ['Action'] : []);
+    const coverUrl = enriched?.cover || (enriched?.steamAppId ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${enriched.steamAppId}/header.jpg` : generateFallbackCover(title, genres[0] || 'Game'));
+    const backgroundUrl = enriched?.background || (enriched?.steamAppId ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${enriched.steamAppId}/page_bg_raw.jpg` : null);
 
     return {
       id: `epic_${acctPrefix}_${slug}_${idx + 1}`,
       title,
       rawTitle: title,
       store: 'Epic Games Store',
-      classification: cls,
-      publisher: a.organization || null,
-      developer: null,
-      releaseDate: null,
-      isFree: true,
+      classification: enriched?.classification || cls,
+      publisher: enriched?.publisher || item.organization || 'Epic Games Store',
+      developer: enriched?.developer || item.organization || null,
+      releaseDate: enriched?.releaseDate || null,
+      cover: coverUrl,
+      background: backgroundUrl,
+      screenshots: enriched?.screenshots || [],
+      genres: genres,
+      themes: enriched?.themes || [],
+      tags: enriched?.tags || [],
+      platforms: enriched?.platforms || ['windows'],
+      summary: enriched?.summary || null,
+      about: enriched?.about || null,
+      ratings: {
+        metacritic: enriched?.metacritic ?? null,
+        steam: enriched?.steamScore ?? null,
+        steamReviewCount: enriched?.steamReviewCount ?? null,
+        igdbCritic: null,
+        igdbUser: null,
+        opencritic: null,
+      },
+      pricing: {
+        currency: currency,
+        msrp: msrp,
+        current: currentPrice,
+        discountPercent: isF2P ? 0 : 100, // Acquired 100% free via Epic promotion
+        historicalLowest: msrp,
+      },
+      isFree: isF2P, // True ONLY for actual free-to-play titles/apps, not paid giveaway games!
+      acquisitionType: 'free_claim', // 100% discount promo acquisition
+      features: enriched?.features || {},
       ownership: {
-        purchaseDate: a.createdAt || null,
-        lastUpdated: a.updatedAt || null,
+        purchaseDate: item.createdAt || null,
+        lastUpdated: item.updatedAt || null,
         marketplace: 'Epic Games Store',
-        transactionId: null,
-        purchasePrice: null,
+        transactionId: item.entitlementId || null,
+        purchasePrice: 0, // Acquired at $0 in promo
+        amountPaid: 0,
         playtimeSeconds: 0,
         playtimeRaw: '0',
       },
       provenance: {
-        confidence: a.organization ? 'High' : 'Medium',
-        sources: ['Epic Games Account Export', 'Consented 3rd-party App'],
+        confidence: enriched ? 'High' : (item.organization ? 'Medium' : 'Low'),
+        sources: ['Epic Games Account Export', item.source, enriched ? 'Steam Store Catalog' : null].filter(Boolean),
         issues: [],
-        consentedScopes: a.consentedScopes || [],
-        privacyPolicy: a.privacyPolicy || null,
-        supportEmail: a.supportEmail || null,
+        steamAppId: enriched?.steamAppId || null,
+        consentedScopes: item.consentedScopes || [],
+        privacyPolicy: item.privacyPolicy || null,
+        supportEmail: item.supportEmail || null,
       },
     };
   });

@@ -9,6 +9,7 @@ import {
   SORT_OPTIONS, activeFilterCount,
 } from '../services/filters.js';
 import { openSyncModal } from '../components/sync-modal.js';
+import { generateFallbackCover } from '../services/game-catalog-db.js';
 
 let filters = emptyFilters();
 let sortKey = 'title-asc';
@@ -317,36 +318,48 @@ function renderResults(games, fc) {
 }
 
 function card(g) {
-  const rating = bestRating(g);
   const isNeedsVerif = g.title === 'Needs Manual Verification';
   const displayTitle = isNeedsVerif
     ? '<span style="color:var(--fg-quaternary);font-style:italic">Needs Manual Verification</span>'
     : escHtml(g.title);
 
-  const ratingHtml = rating
-    ? `<span class="rating-badge">${rating.source === 'Steam' ? '👍' : '★'} ${rating.score}</span>`
+  const ratingVal = bestRating(g);
+  const isSteamRating = g.steamScore != null && g.steamScore === ratingVal;
+  const ratingHtml = ratingVal != null
+    ? `<span class="rating-badge">${isSteamRating ? '👍' : '★'} ${ratingVal}${isSteamRating ? '%' : ''}</span>`
     : '';
 
   const confBadge = `<span class="conf-dot conf-${(g.confidence || 'medium').toLowerCase()}" title="Confidence: ${g.confidence || 'Medium'}"></span>`;
-  const priceFormatted = g.isFree ? 'Free' : (g.currentPrice != null ? `$${Math.round(g.currentPrice)}` : (g.msrp != null ? `$${Math.round(g.msrp)}` : ''));
+
+  const sym = g.currency === 'INR' ? '₹' : '$';
+  const rawVal = g.currentPrice ?? g.msrp;
+  // If currency is USD but rawVal is an INR amount (> 150), convert to USD
+  const val = (g.currency === 'USD' || !g.currency) && rawVal > 150 ? Math.round(rawVal / 80) : rawVal;
+  const isFreeF2P = g.isFree || val === 0;
+  const priceFormatted = isFreeF2P ? 'Free' : `${sym}${Math.round(val)}`;
+  const isFreeClaim = !isFreeF2P && (g.acquisitionType === 'free_claim' || g.amountPaid === 0);
+
+  const fallbackDataUrl = generateFallbackCover(g.title, (g.genres && g.genres[0]) || 'Game');
+  const coverSrc = g.cover && !g.cover.includes('placeholder') ? g.cover : fallbackDataUrl;
 
   return `
     <article class="game-card" data-id="${escAttr(g.id)}" tabindex="0" role="button" aria-label="${escAttr(g.title)}">
       <div class="card-cover">
-        <img src="${escAttr(g.cover || 'assets/placeholders/cover.svg')}"
+        <img src="${escAttr(coverSrc)}"
              alt="${escAttr(g.title)}"
              loading="lazy"
-             onerror="this.src='assets/placeholders/cover.svg';">
+             onerror="this.onerror=null; this.src='${escAttr(fallbackDataUrl)}';">
         <div class="card-badges">
           ${confBadge}
           ${ratingHtml}
         </div>
+        ${isFreeClaim ? `<div class="card-promo-tag" style="position:absolute;bottom:8px;left:8px;background:rgba(17,94,163,0.85);backdrop-filter:blur(4px);color:#fff;font-size:10px;font-weight:600;padding:2px 6px;border-radius:4px;letter-spacing:0.03em;">PROMO 100% OFF</div>` : ''}
       </div>
       <div class="card-body">
         <h3 class="card-title" title="${escAttr(g.title)}">${displayTitle}</h3>
         <p class="card-meta">
           <span>${escHtml(g.developer || g.publisher || g.marketplace || 'Epic Games')}</span>
-          ${priceFormatted ? `<span>${priceFormatted}</span>` : ''}
+          ${priceFormatted ? `<span style="${!isFreeF2P ? 'color:var(--status-success-fg);font-weight:600;' : ''}">${priceFormatted}</span>` : ''}
         </p>
       </div>
     </article>

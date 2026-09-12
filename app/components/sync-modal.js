@@ -346,14 +346,15 @@ function renderResults(data) {
   `;
 }
 
-export function applyExtractedData() {
-  if (!lastExtractionResult) return;
+export function applyExtractedData(customResult = null) {
+  const result = customResult || lastExtractionResult;
+  if (!result) return;
 
   // 1. Update application state and persist to localStorage
-  setImportedAccountData(lastExtractionResult);
+  setImportedAccountData(result);
 
   // 2. Update topbar UI
-  updateTopbarSyncUI(lastExtractionResult.profile);
+  updateTopbarSyncUI(result.profile);
 
   // 3. Close modal
   closeSyncModal();
